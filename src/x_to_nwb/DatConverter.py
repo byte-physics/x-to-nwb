@@ -534,9 +534,9 @@ class DatConverter:
                         clampMode = DatConverter._getClampMode(ampState, cycle_id, trace)
 
                         if clampMode == V_CLAMP_MODE:
-                            conversion, unit = 1e-3, "V"
+                            conversion = 1e-3
                         elif clampMode == I_CLAMP_MODE:
-                            conversion, unit = 1e-12, "A"
+                            conversion = 1e-12
 
                         seriesClass = getStimulusSeriesClass(clampMode)
 
@@ -544,7 +544,6 @@ class DatConverter:
                             name=name,
                             data=data,
                             sweep_number=np.uint64(cycle_id),
-                            unit=unit,
                             electrode=electrode,
                             gain=gain,
                             resolution=resolution,
@@ -593,7 +592,7 @@ class DatConverter:
                         else:
                             gain = np.nan
 
-                        conversion, unit = parseUnit(trace.YUnit)
+                        conversion, _ = parseUnit(trace.YUnit)
                         electrodeKey = DatConverter._generateElectrodeKey(trace)
                         electrode = electrodes[self.electrodeDict[electrodeKey]]
 
@@ -643,7 +642,6 @@ class DatConverter:
                                 name=name,
                                 data=data,
                                 sweep_number=np.uint64(cycle_id),
-                                unit=unit,
                                 electrode=electrode,
                                 gain=gain,
                                 resolution=resolution,
@@ -681,7 +679,6 @@ class DatConverter:
                                 name=name,
                                 data=data,
                                 sweep_number=np.uint64(cycle_id),
-                                unit=unit,
                                 electrode=electrode,
                                 gain=gain,
                                 resolution=resolution,
