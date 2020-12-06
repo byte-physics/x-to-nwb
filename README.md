@@ -97,20 +97,3 @@ x-to-nwb --multipleGroupsPerFile H18.28.015.11.12.dat
 ```sh
 x-to-nwb --outputMetadata *.dat *.abf
 ```
-
-## Running the regression tests
-
-Currently only file level regressions tests exist which check that the
-conversion from DAT/ABF to NWB results in the same NWB files compared to earlier
-versions.
-
-For running the tests do the following:
-
-```sh
-cd tests
-py.test --collect-only .
-py.test --numprocesses auto .
-```
-
-The separate collection step is necessary as that can not be parallelized, see also
-https://github.com/pytest-dev/pytest-xdist/issues/18.
