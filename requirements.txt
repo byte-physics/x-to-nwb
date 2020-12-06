@@ -6,7 +6,7 @@ versioneer==0.19
 
 twine==3.2.0
 
-pytest==6.3.2
+pytest==6.1.2
 pytest-xdist==2.1.0
 
 pyabf==2.2.8
