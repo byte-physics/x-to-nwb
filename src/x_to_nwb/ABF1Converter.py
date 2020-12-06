@@ -129,7 +129,9 @@ class ABF1Converter:
         Creates the NWB file for the cell, as defined by PyNWB
         """
 
-        self.start_time = self.abfFiles[0].abfDateTime
+        self.start_time = datetime.combine(
+            self.abfFiles[0].abfDateTime.date(), self.abfFiles[0].abfDateTime.time(), tzinfo=tzlocal()
+        )
         self.inputCellName = os.path.basename(self.inputPath)
 
         creatorInfo = self.abfFiles[0]._headerV1.sCreatorInfo
@@ -141,7 +143,6 @@ class ABF1Converter:
             session_start_time=self.start_time,
             experiment_description=experiment_description,
             identifier=self.inputCellName,
-            file_create_date=datetime.now(tzlocal()),
             experimenter=None,
             notes="",
         )

@@ -1,5 +1,5 @@
 from hashlib import sha256
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 import json
 import warnings
@@ -288,7 +288,7 @@ class DatConverter:
         delta = datetime(1970, 1, 1) - datetime(1904, 1, 1)
         secondsSinceUnixEpoch = heka_elapsed_seconds - JanFirst1990 - delta.total_seconds() + 16096
 
-        return datetime.fromtimestamp(secondsSinceUnixEpoch)
+        return datetime.fromtimestamp(secondsSinceUnixEpoch).replace(tzinfo=timezone.utc)
 
     @staticmethod
     def _isValidAmplifierState(ampState):
