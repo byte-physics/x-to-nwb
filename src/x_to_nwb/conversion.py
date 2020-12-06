@@ -20,7 +20,7 @@ def convert(
     multipleGroupsPerFile=False,
     compression=True,
     searchSettingsFile=True,
-    includeChannelList="*",
+    includeChannelList=list("*"),
     discardChannelList=None,
     acquisitionChannelName=None,
     stimulusChannelName=None,
