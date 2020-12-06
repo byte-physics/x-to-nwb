@@ -14,10 +14,11 @@ def convert(
     overwrite=False,
     fileType=None,
     outputMetadata=False,
-    outputFeedbackChannel=False,
     multipleGroupsPerFile=False,
     compression=True,
     searchSettingsFile=True,
+    includeChannelList="*",
+    discardChannelList=None,
 ):
     """
     Convert the given file to a NeuroDataWithoutBorders file using pynwb
@@ -30,11 +31,12 @@ def convert(
     :param overwrite: overwrite output file, defaults to `False`
     :param fileType: file type to be converted, must be passed iff `inFileOrFolder` refers to a folder
     :param outputMetadata: output metadata of the file, helpful for debugging
-    :param outputFeedbackChannel: Output ADC data which stems from stimulus feedback channels (ignored for DAT files)
     :param multipleGroupsPerFile: Write all Groups in the DAT file into one NWB
                                   file. By default we create one NWB per Group (ignored for ABF files).
     :param searchSettingsFile: Search the JSON amplifier settings file and warn if it could not be found (ignored for DAT files)
     :param compression: Toggle compression for HDF5 datasets
+    :param includeChannelList: ADC channels to write into the NWB file (ignored for DAT files)
+    :param discardChannelList: ADC channels to not write into the NWB file (ignored for DAT files)
 
     :return: path of the created NWB file
     """
@@ -69,9 +71,10 @@ def convert(
             ABFConverter(
                 inFileOrFolder,
                 outFile,
-                outputFeedbackChannel=outputFeedbackChannel,
                 compression=compression,
                 searchSettingsFile=searchSettingsFile,
+                includeChannelList=includeChannelList,
+                discardChannelList=discardChannelList,
             )
     elif ext == ".dat":
         if outputMetadata:
@@ -144,6 +147,22 @@ def convert_cli():
         help="Don't search the JSON file for the amplifier settings.",
     )
 
+    abf_group_channels = abf_group.add_mutually_exclusive_group(required=False)
+    abf_group_channels.add_argument(
+        "--includeChannel",
+        type=str,
+        dest="includeChannelList",
+        action="append",
+        help=f"Name of ADC channels to include in the NWB file. Can not be combined with --outputFeedbackChannel and --realDataChannel as these settings are ignored.",
+    )
+    abf_group_channels.add_argument(
+        "--discardChannel",
+        type=str,
+        dest="discardChannelList",
+        action="append",
+        help=f"Name of ADC channels to not include in the NWB file. Can not be combined with --outputFeedbackChannel and --realDataChannel as these settings are ignored.",
+    )
+
     dat_group.add_argument(
         "--multipleGroupsPerFile",
         action="store_true",
@@ -152,6 +171,19 @@ def convert_cli():
     )
 
     args = parser.parse_args()
+
+    if args.includeChannelList is not None or args.discardChannelList is not None:
+        if args.outputFeedbackChannel or args.realDataChannel:
+            raise ValueError(
+                "--outputFeedbackChannel and --realDataChannel can not be present together with --includeChannel or --discardChannel."
+            )
+
+    elif args.realDataChannel:
+        args.includeChannelList = ABFConverter.adcNamesWithRealData + args.realDataChannel
+    elif args.outputFeedbackChannel:
+        args.includeChannelList = "*"
+    else:
+        args.includeChannelList = ABFConverter.adcNamesWithRealData
 
     if args.log:
         numeric_level = getattr(logging, args.log.upper(), None)
@@ -168,9 +200,6 @@ def convert_cli():
 
         ABFConverter.protocolStorageDir = args.protocolDir
 
-    if args.realDataChannel:
-        ABFConverter.adcNamesWithRealData.append(args.realDataChannel)
-
     for fileOrFolder in args.filesOrFolders:
         print(f"Converting {fileOrFolder}")
         convert(
@@ -178,10 +207,11 @@ def convert_cli():
             overwrite=args.overwrite,
             fileType=args.fileType,
             outputMetadata=args.outputMetadata,
-            outputFeedbackChannel=args.outputFeedbackChannel,
             multipleGroupsPerFile=args.multipleGroupsPerFile,
             compression=args.compression,
             searchSettingsFile=args.searchSettingsFile,
+            includeChannelList=args.includeChannelList,
+            discardChannelList=args.discardChannelList,
         )
 
 
