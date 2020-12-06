@@ -105,14 +105,15 @@ class ABF1Converter:
         self.acquisitionChannelName = acquisitionChannelName
         self.stimulusChannelName = stimulusChannelName
 
-    def _outputMetadata(self):
-        """
-        Create metadata files in HTML format next to the existing ABF files.
-        """
+    @staticmethod
+    def outputMetadata(inFile):
+        if not os.path.isfile(inFile):
+            raise ValueError(f"The file {inFile} does not exist.")
 
-        for abfFile in self.abfFiles:
-            root, ext = os.path.splitext(abfFile.abfFilePath)
-            pyabf.abfHeaderDisplay.abfInfoPage(abfFile).generateHTML(saveAs=root + ".html")
+        root, ext = os.path.splitext(inFile)
+
+        abf = pyabf.ABF(inFile)
+        pyabf.abfHeaderDisplay.abfInfoPage(abf).generateHTML(saveAs=root + ".html")
 
     def _getComments(self, abf):
 
