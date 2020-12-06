@@ -1,4 +1,5 @@
 import os
+import sys
 import argparse
 import logging
 
@@ -189,6 +190,10 @@ def convert_cli():
         default=False,
         help="Write all Groups from a DAT file into a single NWB file. By default we create one NWB file per Group.",
     )
+
+    if len(sys.argv) < 2:
+        parser.print_help()
+        sys.exit(1)
 
     args = parser.parse_args()
 
