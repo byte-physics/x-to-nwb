@@ -1,0 +1,2 @@
+include versioneer.py
+include src/x_to_nwb/_version.py
