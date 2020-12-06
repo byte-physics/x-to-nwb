@@ -128,18 +128,6 @@ def convert_cli():
         help=("Type of the files to convert (only required if passing folders)."),
     )
     abf_group.add_argument(
-        "--outputFeedbackChannel",
-        action="store_true",
-        default=False,
-        help="Output ADC data to the NWB file which stems from stimulus feedback channels.",
-    )
-    abf_group.add_argument(
-        "--realDataChannel",
-        type=str,
-        action="append",
-        help=f"Define additional channels which hold non-feedback channel data. The default is {ABF2Converter.adcNamesWithRealData}.",
-    )
-    abf_group.add_argument(
         "--no-searchSettingsFile",
         action="store_false",
         dest="searchSettingsFile",
@@ -153,14 +141,14 @@ def convert_cli():
         type=str,
         dest="includeChannelList",
         action="append",
-        help=f"Name of ADC channels to include in the NWB file. Can not be combined with --outputFeedbackChannel and --realDataChannel as these settings are ignored.",
+        help=f"Name of ADC channels to include in the NWB file.",
     )
     abf_group_channels.add_argument(
         "--discardChannel",
         type=str,
         dest="discardChannelList",
         action="append",
-        help=f"Name of ADC channels to not include in the NWB file. Can not be combined with --outputFeedbackChannel and --realDataChannel as these settings are ignored.",
+        help=f"Name of ADC channels to not include in the NWB file.",
     )
 
     dat_group.add_argument(
@@ -171,19 +159,6 @@ def convert_cli():
     )
 
     args = parser.parse_args()
-
-    if args.includeChannelList is not None or args.discardChannelList is not None:
-        if args.outputFeedbackChannel or args.realDataChannel:
-            raise ValueError(
-                "--outputFeedbackChannel and --realDataChannel can not be present together with --includeChannel or --discardChannel."
-            )
-
-    elif args.realDataChannel:
-        args.includeChannelList = ABF2Converter.adcNamesWithRealData + args.realDataChannel
-    elif args.outputFeedbackChannel:
-        args.includeChannelList = "*"
-    else:
-        args.includeChannelList = ABF2Converter.adcNamesWithRealData
 
     if args.log:
         numeric_level = getattr(logging, args.log.upper(), None)

@@ -11,18 +11,14 @@ writes them to a file in JSON output.
 
 In case you don't have a JSON settings file pass `--no-searchSettingsFile` to avoid warnings.
 
-For historic reasons the ABF conversion uses a hardcoded list of AD channel names
-which will be written into the NWB file, other channels are discarded.
-
-To turn that behaviour off call the conversion script with
+By default all AD and DA channels are outputted into the NWB file. You can
+select to only export some AD channels with
 
 ```sh
-x-to-nwb --includeChannel "*" 2018_03_20_0000.abf
+x-to-nwb --includeChannel ABCD 2018_03_20_0000.abf
 ```
 
-which outputs all AD channels.
-
-To discard some AD channels (the hardcoded list is ignored in this case) use
+Or to discard some AD channels use
 
 ```sh
 x-to-nwb --discardChannel ABCD 2018_03_20_0000.abf

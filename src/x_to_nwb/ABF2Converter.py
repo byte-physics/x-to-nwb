@@ -41,9 +41,6 @@ log = logging.getLogger(__name__)
 class ABF2Converter:
 
     protocolStorageDir = None
-    # TODO hardcoded channel names should be removed,
-    # together with the --outputFeedbackChannel and --realDataChannel options of run_x_to_nwb_conversion.py
-    adcNamesWithRealData = ["IN 0", "IN 1", "IN 2", "IN 3"]
 
     def __init__(
         self,
