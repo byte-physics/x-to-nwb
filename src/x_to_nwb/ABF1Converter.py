@@ -256,7 +256,7 @@ class ABF1Converter:
                     stimulus = stimulusClass(
                         name=seriesName,
                         data=data,
-                        sweep_number=i,
+                        sweep_number=np.uint32(i),
                         electrode=electrode,
                         gain=stimulusGain,
                         resolution=resolution,
@@ -335,7 +335,7 @@ class ABF1Converter:
                         acquisition = series(
                             name=seriesName,
                             data=data,
-                            sweep_number=i,
+                            sweep_number=np.uint32(i),
                             electrode=electrode,
                             gain=responseGain,
                             resolution=resolution,
@@ -352,7 +352,7 @@ class ABF1Converter:
                         acquisition = series(
                             name=seriesName,
                             data=data,
-                            sweep_number=i,
+                            sweep_number=np.uint32(i),
                             electrode=electrode,
                             gain=responseGain,
                             resolution=resolution,
