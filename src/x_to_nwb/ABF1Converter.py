@@ -157,7 +157,9 @@ class ABF1Converter:
 
     def _createElectrode(self):
 
-        self.electrode = self.NWBFile.create_ic_electrode(name="elec0", device=self.device, description="PLACEHOLDER")
+        self.electrode = self.NWBFile.create_icephys_electrode(
+            name="elec0", device=self.device, description="PLACEHOLDER"
+        )
 
     def _unitConversion(self, unit):
 
