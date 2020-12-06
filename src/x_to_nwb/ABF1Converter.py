@@ -9,12 +9,14 @@ from pynwb import NWBHDF5IO, NWBFile
 from pynwb.icephys import CurrentClampStimulusSeries, VoltageClampStimulusSeries, CurrentClampSeries, VoltageClampSeries
 from hdmf.backends.hdf5.h5_utils import H5DataIO
 
+
 def createCompressedDataset(array):
     """
     Request compression for the given array and return it wrapped.
     """
 
     return H5DataIO(data=array, compression=True, chunks=True, shuffle=True, fletcher32=True)
+
 
 class ABF1Converter:
 
@@ -37,11 +39,20 @@ class ABF1Converter:
     clampMode: 0 or 1 integer indicating clamp mode (0 is VC, 1 is CC). If not None, overwrites clamp mode provided in ABF file
     """
 
-    def __init__(self, inputPath, outputFilePath, acquisitionChannelName=None, stimulusChannelName=None,
-      responseGain = 1, stimulusGain = 1, responseOffset = 0, clampMode = None):
+    def __init__(
+        self,
+        inputPath,
+        outputFilePath,
+        acquisitionChannelName=None,
+        stimulusChannelName=None,
+        responseGain=1,
+        stimulusGain=1,
+        responseOffset=0,
+        clampMode=None,
+    ):
 
         self.inputPath = inputPath
-        self.debug=False
+        self.debug = False
 
         if os.path.isfile(self.inputPath):
             print(inputPath)
@@ -84,9 +95,9 @@ class ABF1Converter:
                 self.abfFiles += [abf]
 
         if clampMode:
-          self.clampMode = clampMode # sometimes the abf-based clamp mode is wrong
+            self.clampMode = clampMode  # sometimes the abf-based clamp mode is wrong
         else:
-          self.clampMode = self.abfFiles[0]._headerV1.nExperimentType
+            self.clampMode = self.abfFiles[0]._headerV1.nExperimentType
 
         self.outputPath = outputFilePath
 
@@ -97,7 +108,7 @@ class ABF1Converter:
         self.responseOffset = responseOffset
 
         self.acquisitionChannelName = acquisitionChannelName
-        self.stimulusChannelName    = stimulusChannelName
+        self.stimulusChannelName = stimulusChannelName
 
     def _outputMetadata(self):
         """
@@ -122,52 +133,52 @@ class ABF1Converter:
         Creates the NWB file for the cell, as defined by PyNWB
         """
 
-        self.start_time =  self.abfFiles[0].abfDateTime
+        self.start_time = self.abfFiles[0].abfDateTime
         self.inputCellName = os.path.basename(self.inputPath)
 
         creatorInfo = self.abfFiles[0]._headerV1.sCreatorInfo
         creatorVersion = self.abfFiles[0]._headerV1.creatorVersionString
-        experiment_description = (f"{creatorInfo} v{creatorVersion}")
+        experiment_description = f"{creatorInfo} v{creatorVersion}"
 
         self.NWBFile = NWBFile(
             session_description="",
             session_start_time=self.start_time,
-            experiment_description = experiment_description,
+            experiment_description=experiment_description,
             identifier=self.inputCellName,
-            file_create_date= datetime.now(tzlocal()),
+            file_create_date=datetime.now(tzlocal()),
             experimenter=None,
-            notes=""
+            notes="",
         )
         return self.NWBFile
 
     def _createDevice(self):
 
-        creatorInfo    = self.abfFiles[0]._headerV1.sCreatorInfo
+        creatorInfo = self.abfFiles[0]._headerV1.sCreatorInfo
         creatorVersion = self.abfFiles[0]._headerV1.creatorVersionString
 
         self.device = self.NWBFile.create_device(name=f"{creatorInfo} {creatorVersion}")
 
     def _createElectrode(self):
 
-        self.electrode = self.NWBFile.create_ic_electrode(name='elec0', device=self.device, description='PLACEHOLDER')
+        self.electrode = self.NWBFile.create_ic_electrode(name="elec0", device=self.device, description="PLACEHOLDER")
 
     def _unitConversion(self, unit):
 
         # Returns a 2-list of base unit and conversion factor
 
-        if unit == 'V':
-            return 1.0, 'V'
-        elif unit == 'mV':
-            return 1e-3, 'V'
-        elif unit == 'A':
-            return 1.0, 'A'
-        elif unit == 'pA':
-            return 1e-12, 'A'
-        elif unit == 'nA':
-            return 1e-9, 'A'
+        if unit == "V":
+            return 1.0, "V"
+        elif unit == "mV":
+            return 1e-3, "V"
+        elif unit == "A":
+            return 1.0, "A"
+        elif unit == "pA":
+            return 1e-12, "A"
+        elif unit == "nA":
+            return 1e-9, "A"
         else:
             # raise ValueError(f"{unit} is not a valid unit.")
-            return 1.0, 'V'  # hard coded for units stored as '?'
+            return 1.0, "V"  # hard coded for units stored as '?'
 
     def _getClampMode(self):
 
@@ -211,7 +222,9 @@ class ABF1Converter:
                 for channelIndex in channelIndices:
 
                     if self.debug:
-                        print(f"stimulus: abfFile={abfFile.abfFilePath}, sweep={i}, channelIndex={channelIndex}, channelName={channelList[channelIndex]}")
+                        print(
+                            f"stimulus: abfFile={abfFile.abfFilePath}, sweep={i}, channelIndex={channelIndex}, channelName={channelList[channelIndex]}"
+                        )
 
                     # Collect data from pyABF
                     abfFile.setSweep(i, channel=channelIndex)
@@ -234,13 +247,18 @@ class ABF1Converter:
                     rate = float(abfFile.dataRate)
 
                     # Create a JSON file for the description field
-                    description = json.dumps({"file_name": os.path.basename(self.fileNames[idx]),
-                                              "file_version": abfFile.abfVersionString,
-                                              "sweep_number": i,
-                                              "protocol": abfFile.protocol,
-                                              "protocol_path": abfFile.protocolPath,
-                                              "comments": self._getComments(abfFile)},
-                                             sort_keys=True, indent=4)
+                    description = json.dumps(
+                        {
+                            "file_name": os.path.basename(self.fileNames[idx]),
+                            "file_version": abfFile.abfVersionString,
+                            "sweep_number": i,
+                            "protocol": abfFile.protocol,
+                            "protocol_path": abfFile.protocolPath,
+                            "comments": self._getComments(abfFile),
+                        },
+                        sort_keys=True,
+                        indent=4,
+                    )
 
                     # Determine the clamp mode
                     if self.clampMode == 0:
@@ -253,18 +271,19 @@ class ABF1Converter:
                     data = createCompressedDataset(data)
 
                     # Create a stimulus class
-                    stimulus = stimulusClass(name=seriesName,
-                                             data=data,
-                                             sweep_number=i,
-                                             electrode=electrode,
-                                             gain=stimulusGain,
-                                             resolution=resolution,
-                                             conversion=conversion,
-                                             starting_time=starting_time,
-                                             rate=rate,
-                                             unit=unit,
-                                             description=description
-                                             )
+                    stimulus = stimulusClass(
+                        name=seriesName,
+                        data=data,
+                        sweep_number=i,
+                        electrode=electrode,
+                        gain=stimulusGain,
+                        resolution=resolution,
+                        conversion=conversion,
+                        starting_time=starting_time,
+                        rate=rate,
+                        unit=unit,
+                        description=description,
+                    )
 
                     self.NWBFile.add_stimulus(stimulus)
 
@@ -293,7 +312,9 @@ class ABF1Converter:
                 for channelIndex in channelIndices:
 
                     if self.debug:
-                        print(f"acquisition: abfFile={abfFile.abfFilePath}, sweep={i}, channelIndex={channelIndex}, channelName={channelList[channelIndex]}")
+                        print(
+                            f"acquisition: abfFile={abfFile.abfFilePath}, sweep={i}, channelIndex={channelIndex}, channelName={channelList[channelIndex]}"
+                        )
 
                     # Collect data from pyABF
                     abfFile.setSweep(i, channel=channelIndex)
@@ -309,13 +330,18 @@ class ABF1Converter:
                     rate = float(abfFile.dataRate)
 
                     # Create a JSON file for the description field
-                    description = json.dumps({"file_name": os.path.basename(self.fileNames[idx]),
-                                              "file_version": abfFile.abfVersionString,
-                                              "sweep_number": i,
-                                              "protocol": abfFile.protocol,
-                                              "protocol_path": abfFile.protocolPath,
-                                              "comments": self._getComments(abfFile)},
-                                             sort_keys=True, indent=4)
+                    description = json.dumps(
+                        {
+                            "file_name": os.path.basename(self.fileNames[idx]),
+                            "file_version": abfFile.abfVersionString,
+                            "sweep_number": i,
+                            "protocol": abfFile.protocol,
+                            "protocol_path": abfFile.protocolPath,
+                            "comments": self._getComments(abfFile),
+                        },
+                        sort_keys=True,
+                        indent=4,
+                    )
 
                     # Create an acquisition class
                     # Note: voltage input produces current output; current input produces voltage output
@@ -323,42 +349,44 @@ class ABF1Converter:
                     data = createCompressedDataset(data)
 
                     if self.clampMode == 1:
-                        acquisition = CurrentClampSeries(name=seriesName,
-                                                         data=data,
-                                                         sweep_number=i,
-                                                         electrode=electrode,
-                                                         gain=responseGain,
-                                                         resolution=resolution,
-                                                         conversion=conversion,
-                                                         starting_time=starting_time,
-                                                         rate=rate,
-                                                         unit=unit,
-                                                         description=description,
-                                                         bias_current=np.nan,
-                                                         bridge_balance=np.nan,
-                                                         capacitance_compensation=np.nan,
-                                                         )
+                        acquisition = CurrentClampSeries(
+                            name=seriesName,
+                            data=data,
+                            sweep_number=i,
+                            electrode=electrode,
+                            gain=responseGain,
+                            resolution=resolution,
+                            conversion=conversion,
+                            starting_time=starting_time,
+                            rate=rate,
+                            unit=unit,
+                            description=description,
+                            bias_current=np.nan,
+                            bridge_balance=np.nan,
+                            capacitance_compensation=np.nan,
+                        )
 
                     elif self.clampMode == 0:
-                        acquisition = VoltageClampSeries(name=seriesName,
-                                                         data=data,
-                                                         sweep_number=i,
-                                                         electrode=electrode,
-                                                         gain=responseGain,
-                                                         resolution=resolution,
-                                                         conversion=conversion,
-                                                         starting_time=starting_time,
-                                                         rate=rate,
-                                                         unit=unit,
-                                                         description=description,
-                                                         capacitance_fast=np.nan,
-                                                         capacitance_slow=np.nan,
-                                                         resistance_comp_bandwidth=np.nan,
-                                                         resistance_comp_correction=np.nan,
-                                                         resistance_comp_prediction=np.nan,
-                                                         whole_cell_capacitance_comp=np.nan,
-                                                         whole_cell_series_resistance_comp=np.nan
-                                                         )
+                        acquisition = VoltageClampSeries(
+                            name=seriesName,
+                            data=data,
+                            sweep_number=i,
+                            electrode=electrode,
+                            gain=responseGain,
+                            resolution=resolution,
+                            conversion=conversion,
+                            starting_time=starting_time,
+                            rate=rate,
+                            unit=unit,
+                            description=description,
+                            capacitance_fast=np.nan,
+                            capacitance_slow=np.nan,
+                            resistance_comp_bandwidth=np.nan,
+                            resistance_comp_correction=np.nan,
+                            resistance_comp_prediction=np.nan,
+                            whole_cell_capacitance_comp=np.nan,
+                            whole_cell_series_resistance_comp=np.nan,
+                        )
                     else:
                         raise ValueError(f"Unsupported clamp mode {self.clampMode}")
 
