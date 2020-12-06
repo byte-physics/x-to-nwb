@@ -4,7 +4,7 @@ import subprocess
 import os
 import numpy as np
 from pytest import approx
-import urllib
+import urllib.request
 import shutil
 from pynwb import NWBHDF5IO, validate
 

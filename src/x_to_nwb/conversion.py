@@ -1,11 +1,9 @@
-#!/bin/env python
-
 import os
 import argparse
 import logging
 
-from ipfx.x_to_nwb.ABFConverter import ABFConverter
-from ipfx.x_to_nwb.DatConverter import DatConverter
+from .ABFConverter import ABFConverter
+from .DatConverter import DatConverter
 
 
 log = logging.getLogger(__name__)
@@ -79,7 +77,7 @@ def convert(
     return outFile
 
 
-def main():
+def convert_cli():
 
     parser = argparse.ArgumentParser()
 
@@ -172,4 +170,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    convert_cli()

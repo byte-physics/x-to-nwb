@@ -23,8 +23,8 @@ import os
 import glob
 from zipfile import ZipFile, ZIP_DEFLATED
 
-from ipfx.x_to_nwb.ABFConverter import ABFConverter
-from ipfx.bin.run_x_to_nwb_conversion import convert
+from x_to_nwb.ABFConverter import ABFConverter
+from x_to_nwb.conversion import convert
 from tests.helpers_for_tests import download_file
 
 

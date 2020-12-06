@@ -15,8 +15,8 @@ The nodes are tailored for patchmaster version 2x90.x.
 
 import numpy as np
 
-from ipfx.x_to_nwb.hr_treenode import TreeNode
-from ipfx.x_to_nwb.hr_struct import Struct
+from .hr_treenode import TreeNode
+from .hr_struct import Struct
 
 
 def cstr(byte):

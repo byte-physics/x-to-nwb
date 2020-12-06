@@ -157,7 +157,7 @@ def getPackageInfo():
         return f"({branch}) {rev}"
 
     try:
-        package_version = get_distribution("allensdk").version
+        package_version = get_distribution("x-to-nwb").version
     except DistributionNotFound:  # not installed as a package
         package_version = None
 
@@ -167,7 +167,7 @@ def getPackageInfo():
         git_version = None
 
     version_info = {
-        "repo": "https://github.com/AllenInstitute/ipfx",
+        "repo": "https://github.com/byte-physics/x-to-nwb",
         "package_version": "Unknown",
         "git_revision": "Unknown",
     }

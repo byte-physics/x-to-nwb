@@ -28,7 +28,7 @@ if __name__ == "__main__":
         ],
         cmdclass=versioneer.get_cmdclass(),
         description="Convert various patch-clamp data formats to NWBv2",
-        entry_points={"console_scripts": ["x-to-nwb=x_to_nwb:hello_world"]},  # FIXME
+        entry_points={"console_scripts": ["x-to-nwb=x_to_nwb:convert_cli"]},
         install_requires=reqs,
         long_description_content_type="text/markdown; charset=UTF-8",
         long_description=long_description,

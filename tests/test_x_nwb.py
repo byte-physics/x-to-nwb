@@ -4,12 +4,6 @@ Regression tests for the DAT/ABF conversion to NWB.
 Idea:
     A list of raw data files is converted to NWB and the new NWB file
     is compared to the NWB from earlier runs.
-
-
-Running the tests:
-    By default these tests are expensive and thus skipped by default.
-    To run them pass `--do-x-nwb-tests` on the command line. Tests execution
-    can be parallelized via passing `--numprocesses auto`.
 """
 
 import pytest
@@ -17,14 +11,11 @@ import glob
 import os
 import subprocess
 
-from ipfx.x_to_nwb.ABFConverter import ABFConverter
-from ipfx.x_to_nwb.conversion_utils import createCycleID
-from ipfx.bin.run_x_to_nwb_conversion import convert
+from x_to_nwb.ABFConverter import ABFConverter
+from x_to_nwb.conversion_utils import createCycleID
+from x_to_nwb.conversion import convert
 from .test_x_nwb_helper import fetch_and_extract_zip
 from .helpers_for_tests import diff_h5
-
-
-pytestmark = pytest.mark.xnwbtest
 
 
 def get_raw_files():

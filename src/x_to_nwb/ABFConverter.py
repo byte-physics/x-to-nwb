@@ -18,7 +18,7 @@ from pynwb.device import Device
 from pynwb import NWBHDF5IO, NWBFile
 from pynwb.icephys import IntracellularElectrode
 
-from ipfx.x_to_nwb.conversion_utils import (
+from .conversion_utils import (
     PLACEHOLDER,
     V_CLAMP_MODE,
     I_CLAMP_MODE,
@@ -323,7 +323,7 @@ class ABFConverter:
         creatorName = self.refabf._stringsIndexed.uCreatorName
         creatorVersion = formatVersion(self.refabf.creatorVersion)
         experiment_description = f"{creatorName} v{creatorVersion}"
-        source_script_file_name = "run_x_to_nwb_conversion.py"
+        source_script_file_name = "conversion.py"
         source_script = json.dumps(getPackageInfo(), sort_keys=True, indent=4)
         session_id = PLACEHOLDER
 

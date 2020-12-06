@@ -2,7 +2,7 @@
 Wrapper class around the native struct
 """
 import struct
-from ipfx.x_to_nwb.hr_struct import Struct
+from .hr_struct import Struct
 
 
 class TreeNode(Struct):

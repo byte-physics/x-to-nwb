@@ -11,9 +11,9 @@ from pynwb.device import Device
 from pynwb import NWBHDF5IO, NWBFile
 from pynwb.icephys import IntracellularElectrode
 
-from ipfx.x_to_nwb.hr_bundle import Bundle
-from ipfx.x_to_nwb.hr_stimsetgenerator import StimSetGenerator
-from ipfx.x_to_nwb.conversion_utils import (
+from .hr_bundle import Bundle
+from .hr_stimsetgenerator import StimSetGenerator
+from .conversion_utils import (
     PLACEHOLDER,
     V_CLAMP_MODE,
     I_CLAMP_MODE,
@@ -411,7 +411,7 @@ class DatConverter:
         creatorName = "PatchMaster"
         creatorVersion = self.bundle.header.Version
         experiment_description = f"{creatorName} {creatorVersion}"
-        source_script_file_name = "run_x_to_nwb_conversion.py"
+        source_script_file_name = "conversion.py"
         source_script = json.dumps(getPackageInfo(), sort_keys=True, indent=4)
         session_id = PLACEHOLDER
 

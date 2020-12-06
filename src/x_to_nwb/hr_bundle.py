@@ -1,6 +1,6 @@
 import warnings
 
-from ipfx.x_to_nwb.hr_nodes import (
+from .hr_nodes import (
     Pulsed,
     StimulusTemplate,
     AmplifierFile,
