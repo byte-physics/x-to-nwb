@@ -6,9 +6,9 @@ import json
 from datetime import datetime
 from dateutil.tz import tzlocal
 from pynwb import NWBHDF5IO, NWBFile
-from pynwb.icephys import CurrentClampStimulusSeries, VoltageClampStimulusSeries, CurrentClampSeries, VoltageClampSeries
 
-from .conversion_utils import convertDataset
+from .conversion_utils import convertDataset, V_CLAMP_MODE, I_CLAMP_MODE, getStimulusSeriesClass, getAcquiredSeriesClass
+
 
 class ABF1Converter:
 
@@ -175,17 +175,6 @@ class ABF1Converter:
             # raise ValueError(f"{unit} is not a valid unit.")
             return 1.0, "V"  # hard coded for units stored as '?'
 
-    def _getClampMode(self):
-
-        """
-        Returns the clamp mode of the experiment.
-
-        Voltage Clamp Mode = 0
-        Current Clamp Mode = 1
-        """
-
-        return self.clampMode
-
     def _addStimulus(self):
 
         """
@@ -255,13 +244,7 @@ class ABF1Converter:
                         indent=4,
                     )
 
-                    # Determine the clamp mode
-                    if self.clampMode == 0:
-                        stimulusClass = VoltageClampStimulusSeries
-                    elif self.clampMode == 1:
-                        stimulusClass = CurrentClampStimulusSeries
-                    else:
-                        raise ValueError(f"Unsupported clamp mode {self.clampMode}")
+                    stimulusClass = getStimulusSeriesClass(self.clampMode)
 
                     data = convertDataset(data, self.compression)
 
@@ -317,7 +300,7 @@ class ABF1Converter:
                     responseOffset = self.responseOffset
 
                     data = abfFile.sweepY * responseGain + responseOffset
-                    conversion, _= self._unitConversion(abfFile.sweepUnitsY)
+                    conversion, _ = self._unitConversion(abfFile.sweepUnitsY)
                     electrode = self.electrode
                     resolution = np.nan
                     starting_time = 0.0
@@ -342,8 +325,10 @@ class ABF1Converter:
 
                     data = convertDataset(data, self.compression)
 
-                    if self.clampMode == 1:
-                        acquisition = CurrentClampSeries(
+                    series = getAcquiredSeriesClass(self.clampMode)
+
+                    if self.clampMode == I_CLAMP_MODE:
+                        acquisition = series(
                             name=seriesName,
                             data=data,
                             sweep_number=i,
@@ -359,8 +344,8 @@ class ABF1Converter:
                             capacitance_compensation=np.nan,
                         )
 
-                    elif self.clampMode == 0:
-                        acquisition = VoltageClampSeries(
+                    elif self.clampMode == V_CLAMP_MODE:
+                        acquisition = series(
                             name=seriesName,
                             data=data,
                             sweep_number=i,
@@ -394,7 +379,6 @@ class ABF1Converter:
         self._createNWBFile()
         self._createDevice()
         self._createElectrode()
-        self._getClampMode()
         self._addStimulus()
         self._addAcquisition()
 
