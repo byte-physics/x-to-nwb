@@ -11,7 +11,7 @@ import glob
 import os
 import subprocess
 
-from x_to_nwb.ABFConverter import ABFConverter
+from x_to_nwb.ABF2Converter import ABF2Converter
 from x_to_nwb.conversion_utils import createCycleID
 from x_to_nwb.conversion import convert
 from .test_x_nwb_helper import fetch_and_extract_zip
@@ -29,7 +29,7 @@ def get_raw_files():
     fetch_and_extract_zip("reference_abf_nwb.zip")
 
     fetch_and_extract_zip("reference_atf.zip")
-    ABFConverter.protocolStorageDir = "reference_atf"
+    ABF2Converter.protocolStorageDir = "reference_atf"
 
     files = []
 

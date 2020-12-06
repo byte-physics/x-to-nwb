@@ -23,7 +23,7 @@ import os
 import glob
 from zipfile import ZipFile, ZIP_DEFLATED
 
-from x_to_nwb.ABFConverter import ABFConverter
+from x_to_nwb.ABF2Converter import ABF2Converter
 from x_to_nwb.conversion import convert
 from tests.helpers_for_tests import download_file
 
@@ -95,7 +95,7 @@ def create_files_for_upload(ext):
 
     if ext == "abf":
         fetch_and_extract_zip("reference_atf.zip")
-        ABFConverter.protocolStorageDir = "reference_atf"
+        ABF2Converter.protocolStorageDir = "reference_atf"
 
     folder = f"reference_{ext}"
     basename = f"reference_{ext}"

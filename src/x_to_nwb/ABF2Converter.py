@@ -1,5 +1,5 @@
 """
-Convert ABF files, created by PClamp/Clampex, to NWB v2 files.
+Convert ABF v2 files, created by PClamp/Clampex, to NWB v2 files.
 """
 
 from hashlib import sha256
@@ -38,7 +38,7 @@ from .conversion_utils import (
 log = logging.getLogger(__name__)
 
 
-class ABFConverter:
+class ABF2Converter:
 
     protocolStorageDir = None
     # TODO hardcoded channel names should be removed,
@@ -93,7 +93,7 @@ class ABFConverter:
         self.abfs = []
 
         for inFile in inFiles:
-            abf = pyabf.ABF(inFile, loadData=False, stimulusFileFolder=ABFConverter.protocolStorageDir)
+            abf = pyabf.ABF(inFile, loadData=False, stimulusFileFolder=ABF2Converter.protocolStorageDir)
             self.abfs.append(abf)
 
             # ensure that the input file matches our expectations
@@ -405,7 +405,7 @@ class ABFConverter:
 
         for file_index, abf in enumerate(self.abfs):
 
-            stimulus_description = ABFConverter._getProtocolName(abf.protocol)
+            stimulus_description = ABF2Converter._getProtocolName(abf.protocol)
             scale_factor = self._getScaleFactor(abf, stimulus_description)
 
             for sweep in range(abf.sweepCount):
@@ -594,7 +594,7 @@ class ABFConverter:
 
         for file_index, abf in enumerate(self.abfs):
 
-            stimulus_description = ABFConverter._getProtocolName(abf.protocol)
+            stimulus_description = ABF2Converter._getProtocolName(abf.protocol)
             _, jsonSource = self._findSettingsEntry(abf)
             log.debug(f"Using JSON settings for {jsonSource}.")
 

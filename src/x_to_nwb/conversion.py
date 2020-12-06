@@ -2,7 +2,7 @@ import os
 import argparse
 import logging
 
-from .ABFConverter import ABFConverter
+from .ABF2Converter import ABF2Converter
 from .DatConverter import DatConverter
 
 
@@ -66,9 +66,9 @@ def convert(
 
     if ext == ".abf":
         if outputMetadata:
-            ABFConverter.outputMetadata(inFileOrFolder)
+            ABF2Converter.outputMetadata(inFileOrFolder)
         else:
-            ABFConverter(
+            ABF2Converter(
                 inFileOrFolder,
                 outFile,
                 compression=compression,
@@ -137,7 +137,7 @@ def convert_cli():
         "--realDataChannel",
         type=str,
         action="append",
-        help=f"Define additional channels which hold non-feedback channel data. The default is {ABFConverter.adcNamesWithRealData}.",
+        help=f"Define additional channels which hold non-feedback channel data. The default is {ABF2Converter.adcNamesWithRealData}.",
     )
     abf_group.add_argument(
         "--no-searchSettingsFile",
@@ -179,11 +179,11 @@ def convert_cli():
             )
 
     elif args.realDataChannel:
-        args.includeChannelList = ABFConverter.adcNamesWithRealData + args.realDataChannel
+        args.includeChannelList = ABF2Converter.adcNamesWithRealData + args.realDataChannel
     elif args.outputFeedbackChannel:
         args.includeChannelList = "*"
     else:
-        args.includeChannelList = ABFConverter.adcNamesWithRealData
+        args.includeChannelList = ABF2Converter.adcNamesWithRealData
 
     if args.log:
         numeric_level = getattr(logging, args.log.upper(), None)
@@ -198,7 +198,7 @@ def convert_cli():
         if not os.path.exists(args.protocolDir):
             raise ValueError("Protocol directory does not exist")
 
-        ABFConverter.protocolStorageDir = args.protocolDir
+        ABF2Converter.protocolStorageDir = args.protocolDir
 
     for fileOrFolder in args.filesOrFolders:
         print(f"Converting {fileOrFolder}")
