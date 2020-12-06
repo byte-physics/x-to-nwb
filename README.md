@@ -9,6 +9,8 @@ For gathering these please see the `mcc_get_settings.py` script in the ipfx
 repository which gathers all amplifier settings from all active amplifiers and
 writes them to a file in JSON output.
 
+In case you don't have a JSON settings file pass `--no-searchSettingsFile` to avoid warnings.
+
 #### Required input files
 
 - ABF files acquired with Clampex/pCLAMP.
