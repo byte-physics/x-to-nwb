@@ -68,9 +68,9 @@ def fetch_and_extract_zip(filename):
     folder = os.path.splitext(filename)[0]
     needs_extract = not os.path.isdir(folder)
 
-    if (os.path.isfile(filename)
-        and not compare_checksums(filename, checksum)) \
-       or not os.path.isfile(filename):  # file not present
+    if (os.path.isfile(filename) and not compare_checksums(filename, checksum)) or not os.path.isfile(
+        filename
+    ):  # file not present
         print(f"Download large file {filename}, please be patient.")
         download_file(filename, filename)
         needs_extract = True

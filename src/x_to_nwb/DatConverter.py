@@ -13,15 +13,25 @@ from pynwb.icephys import IntracellularElectrode
 
 from ipfx.x_to_nwb.hr_bundle import Bundle
 from ipfx.x_to_nwb.hr_stimsetgenerator import StimSetGenerator
-from ipfx.x_to_nwb.conversion_utils import PLACEHOLDER, V_CLAMP_MODE, I_CLAMP_MODE, \
-     parseUnit, getStimulusSeriesClass, getAcquiredSeriesClass, createSeriesName, convertDataset, \
-     getPackageInfo, getStimulusRecordIndex, createCycleID, clampModeToString
+from ipfx.x_to_nwb.conversion_utils import (
+    PLACEHOLDER,
+    V_CLAMP_MODE,
+    I_CLAMP_MODE,
+    parseUnit,
+    getStimulusSeriesClass,
+    getAcquiredSeriesClass,
+    createSeriesName,
+    convertDataset,
+    getPackageInfo,
+    getStimulusRecordIndex,
+    createCycleID,
+    clampModeToString,
+)
 
 log = logging.getLogger(__name__)
 
 
 class DatConverter:
-
     def __init__(self, inFile, outFile, multipleGroupsPerFile=False, compression=True):
         """
         Convert DAT files, created by PatchMaster, to NWB v2 files.
@@ -147,8 +157,10 @@ class DatConverter:
             clampMode = getClampModeFromAmpState(ampState)
 
             if clampMode != getClampModeFromUnit(trace):
-                warnings.warn(f"Unit and clamp mode does not match for {cycle_id} "
-                              f"({trace.YUnit} unit vs. {clampModeToString(clampMode)}")
+                warnings.warn(
+                    f"Unit and clamp mode does not match for {cycle_id} "
+                    f"({trace.YUnit} unit vs. {clampModeToString(clampMode)}"
+                )
 
             return clampMode
 
@@ -364,9 +376,11 @@ class DatConverter:
                     continue
 
                 if deviceString != DatConverter._formatDeviceString(state):
-                    raise ValueError(f"Device strings differ in tree structure " +
-                                     f"({deviceString} vs {DatConverter._formatDeviceString(state)} " +
-                                     f"at {series_index}.{state_index})")
+                    raise ValueError(
+                        f"Device strings differ in tree structure "
+                        + f"({deviceString} vs {DatConverter._formatDeviceString(state)} "
+                        + f"at {series_index}.{state_index})"
+                    )
 
         # check trace properties
         for group in self.bundle.pul:
@@ -392,7 +406,7 @@ class DatConverter:
         """
 
         session_description = PLACEHOLDER
-        identifier = sha256(b'%d_' % self.bundle.header.Time + str.encode(datetime.now().isoformat())).hexdigest()
+        identifier = sha256(b"%d_" % self.bundle.header.Time + str.encode(datetime.now().isoformat())).hexdigest()
         self.session_start_time = DatConverter._convertTimestamp(self.bundle.header.Time)
         creatorName = "PatchMaster"
         creatorVersion = self.bundle.header.Version
@@ -401,14 +415,16 @@ class DatConverter:
         source_script = json.dumps(getPackageInfo(), sort_keys=True, indent=4)
         session_id = PLACEHOLDER
 
-        return NWBFile(session_description=session_description,
-                       identifier=identifier,
-                       session_start_time=self.session_start_time,
-                       experimenter=None,
-                       experiment_description=experiment_description,
-                       session_id=session_id,
-                       source_script=source_script,
-                       source_script_file_name=source_script_file_name)
+        return NWBFile(
+            session_description=session_description,
+            identifier=identifier,
+            session_start_time=self.session_start_time,
+            experimenter=None,
+            experiment_description=experiment_description,
+            session_id=session_id,
+            source_script=source_script,
+            source_script_file_name=source_script_file_name,
+        )
 
     def _createDevice(self):
         """
@@ -436,10 +452,10 @@ class DatConverter:
         pynwb.IntracellularElectrode
         """
 
-        return [IntracellularElectrode(f"Electrode {x:d}",
-                                       device,
-                                       description=PLACEHOLDER)
-                for x in self.electrodeDict.values()]
+        return [
+            IntracellularElectrode(f"Electrode {x:d}", device, description=PLACEHOLDER)
+            for x in self.electrodeDict.values()
+        ]
 
     def _getStartingTime(self, sweep):
         """
@@ -479,8 +495,9 @@ class DatConverter:
         for group in groups:
             for series in group:
                 for sweep in series:
-                    cycle_id = createCycleID([group.GroupCount, series.SeriesCount, sweep.SweepCount],
-                                             total=self.totalSeriesCount)
+                    cycle_id = createCycleID(
+                        [group.GroupCount, series.SeriesCount, sweep.SweepCount], total=self.totalSeriesCount
+                    )
                     stimRec = self.bundle.pgf[getStimulusRecordIndex(sweep)]
                     for trace in sweep:
                         stimset = generator.fetch(sweep, trace)
@@ -501,12 +518,17 @@ class DatConverter:
                         stimulus_description = series.Label
                         starting_time = self._getStartingTime(sweep)
                         rate = 1.0 / stimRec.SampleInterval
-                        description = json.dumps({"cycle_id": cycle_id,
-                                                  "file": os.path.basename(self.bundle.file_name),
-                                                  "group_label": group.Label,
-                                                  "series_label": series.Label,
-                                                  "sweep_label": sweep.Label},
-                                                 sort_keys=True, indent=4)
+                        description = json.dumps(
+                            {
+                                "cycle_id": cycle_id,
+                                "file": os.path.basename(self.bundle.file_name),
+                                "group_label": group.Label,
+                                "series_label": series.Label,
+                                "sweep_label": sweep.Label,
+                            },
+                            sort_keys=True,
+                            indent=4,
+                        )
 
                         ampState = DatConverter._getAmplifierState(self.bundle, series, trace)
                         clampMode = DatConverter._getClampMode(ampState, cycle_id, trace)
@@ -518,18 +540,20 @@ class DatConverter:
 
                         seriesClass = getStimulusSeriesClass(clampMode)
 
-                        timeSeries = seriesClass(name=name,
-                                                 data=data,
-                                                 sweep_number=np.uint64(cycle_id),
-                                                 unit=unit,
-                                                 electrode=electrode,
-                                                 gain=gain,
-                                                 resolution=resolution,
-                                                 rate=rate,
-                                                 stimulus_description=stimulus_description,
-                                                 starting_time=starting_time,
-                                                 conversion=conversion,
-                                                 description=description)
+                        timeSeries = seriesClass(
+                            name=name,
+                            data=data,
+                            sweep_number=np.uint64(cycle_id),
+                            unit=unit,
+                            electrode=electrode,
+                            gain=gain,
+                            resolution=resolution,
+                            rate=rate,
+                            stimulus_description=stimulus_description,
+                            starting_time=starting_time,
+                            conversion=conversion,
+                            description=description,
+                        )
 
                         nwbSeries.append(timeSeries)
 
@@ -555,8 +579,9 @@ class DatConverter:
         for group in groups:
             for series in group:
                 for sweep in series:
-                    cycle_id = createCycleID([group.GroupCount, series.SeriesCount, sweep.SweepCount],
-                                             total=self.totalSeriesCount)
+                    cycle_id = createCycleID(
+                        [group.GroupCount, series.SeriesCount, sweep.SweepCount], total=self.totalSeriesCount
+                    )
                     for trace in sweep:
                         name, counter = createSeriesName("index", counter, total=self.totalSeriesCount)
                         data = convertDataset(self.bundle.data[trace], self.compression)
@@ -575,12 +600,17 @@ class DatConverter:
                         resolution = np.nan
                         starting_time = self._getStartingTime(sweep)
                         rate = 1.0 / trace.XInterval
-                        description = json.dumps({"cycle_id": cycle_id,
-                                                  "file": os.path.basename(self.bundle.file_name),
-                                                  "group_label": group.Label,
-                                                  "series_label": series.Label,
-                                                  "sweep_label": sweep.Label},
-                                                 sort_keys=True, indent=4)
+                        description = json.dumps(
+                            {
+                                "cycle_id": cycle_id,
+                                "file": os.path.basename(self.bundle.file_name),
+                                "group_label": group.Label,
+                                "series_label": series.Label,
+                                "sweep_label": sweep.Label,
+                            },
+                            sort_keys=True,
+                            indent=4,
+                        )
                         clampMode = DatConverter._getClampMode(ampState, cycle_id, trace)
                         seriesClass = getAcquiredSeriesClass(clampMode)
                         stimulus_description = series.Label
@@ -609,25 +639,27 @@ class DatConverter:
                             else:
                                 capacitance_slow = np.nan
 
-                            acquistion_data = seriesClass(name=name,
-                                                          data=data,
-                                                          sweep_number=np.uint64(cycle_id),
-                                                          unit=unit,
-                                                          electrode=electrode,
-                                                          gain=gain,
-                                                          resolution=resolution,
-                                                          conversion=conversion,
-                                                          starting_time=starting_time,
-                                                          rate=rate,
-                                                          description=description,
-                                                          capacitance_slow=capacitance_slow,
-                                                          capacitance_fast=capacitance_fast,
-                                                          resistance_comp_correction=resistance_comp_correction,
-                                                          resistance_comp_bandwidth=resistance_comp_bandwidth,
-                                                          resistance_comp_prediction=resistance_comp_prediction,
-                                                          whole_cell_capacitance_comp=whole_cell_capacitance_comp,
-                                                          stimulus_description=stimulus_description,
-                                                          whole_cell_series_resistance_comp=whole_cell_series_resistance_comp)  # noqa: E501
+                            acquistion_data = seriesClass(
+                                name=name,
+                                data=data,
+                                sweep_number=np.uint64(cycle_id),
+                                unit=unit,
+                                electrode=electrode,
+                                gain=gain,
+                                resolution=resolution,
+                                conversion=conversion,
+                                starting_time=starting_time,
+                                rate=rate,
+                                description=description,
+                                capacitance_slow=capacitance_slow,
+                                capacitance_fast=capacitance_fast,
+                                resistance_comp_correction=resistance_comp_correction,
+                                resistance_comp_bandwidth=resistance_comp_bandwidth,
+                                resistance_comp_prediction=resistance_comp_prediction,
+                                whole_cell_capacitance_comp=whole_cell_capacitance_comp,
+                                stimulus_description=stimulus_description,
+                                whole_cell_series_resistance_comp=whole_cell_series_resistance_comp,
+                            )  # noqa: E501
 
                         elif clampMode == I_CLAMP_MODE:
                             bias_current = trace.Holding
@@ -645,21 +677,23 @@ class DatConverter:
                             else:
                                 bridge_balance = np.nan
 
-                            acquistion_data = seriesClass(name=name,
-                                                          data=data,
-                                                          sweep_number=np.uint64(cycle_id),
-                                                          unit=unit,
-                                                          electrode=electrode,
-                                                          gain=gain,
-                                                          resolution=resolution,
-                                                          conversion=conversion,
-                                                          starting_time=starting_time,
-                                                          rate=rate,
-                                                          description=description,
-                                                          bias_current=bias_current,
-                                                          bridge_balance=bridge_balance,
-                                                          stimulus_description=stimulus_description,
-                                                          capacitance_compensation=capacitance_compensation)
+                            acquistion_data = seriesClass(
+                                name=name,
+                                data=data,
+                                sweep_number=np.uint64(cycle_id),
+                                unit=unit,
+                                electrode=electrode,
+                                gain=gain,
+                                resolution=resolution,
+                                conversion=conversion,
+                                starting_time=starting_time,
+                                rate=rate,
+                                description=description,
+                                bias_current=bias_current,
+                                bridge_balance=bridge_balance,
+                                stimulus_description=stimulus_description,
+                                capacitance_compensation=capacitance_compensation,
+                            )
                         else:
                             raise ValueError(f"Unsupported clamp mode {clampMode}.")
 

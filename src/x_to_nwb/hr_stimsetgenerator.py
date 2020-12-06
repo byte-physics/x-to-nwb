@@ -53,8 +53,10 @@ class StimSetGenerator:
             channelRec = stimRec[channelRec_index]
 
             if stimRec.ActualDacChannels != 1:
-                raise ValueError(f"Unsupported ActualDacChannels lengths for "
-                                 f"sweep index {stimRec_idx} and ChannelRecord index {channelRec_index}.")
+                raise ValueError(
+                    f"Unsupported ActualDacChannels lengths for "
+                    f"sweep index {stimRec_idx} and ChannelRecord index {channelRec_index}."
+                )
 
             allSweeps = []
 

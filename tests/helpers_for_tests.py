@@ -9,7 +9,6 @@ import shutil
 from pynwb import NWBHDF5IO, validate
 
 
-
 def compare_dicts(d_ref, d):
     """
     Custom test assertion for dictionaries with a mixture of strings,
@@ -58,7 +57,7 @@ def download_file(file_name, output_filepath):
         shutil.copyfileobj(response, out_file)
 
 
-def diff_h5(test_file,temp_file):
+def diff_h5(test_file, temp_file):
     """
     Compare h5 files
 
@@ -76,10 +75,16 @@ def diff_h5(test_file,temp_file):
 
     # list of objects to ignore
     # these objects always change
-    ignore_paths = ["--exclude-path", "/general/source_script",
-                    "--exclude-path", "/file_create_date",
-                    "--exclude-path", "/identifier",
-                    "--exclude-path", "/specifications"]
+    ignore_paths = [
+        "--exclude-path",
+        "/general/source_script",
+        "--exclude-path",
+        "/file_create_date",
+        "--exclude-path",
+        "/identifier",
+        "--exclude-path",
+        "/specifications",
+    ]
 
     nwb_files = [test_file, temp_file]
 
@@ -87,11 +92,13 @@ def diff_h5(test_file,temp_file):
     # bash on windows.
     # See https://stackoverflow.com/a/34386471/4859183 for some background.
 
-    out = subprocess.run(["h5diff"] + prog_args + ignore_paths + nwb_files,
-                         env={"MSYS_NO_PATHCONV": "1"},
-                         encoding="ascii",
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
+    out = subprocess.run(
+        ["h5diff"] + prog_args + ignore_paths + nwb_files,
+        env={"MSYS_NO_PATHCONV": "1"},
+        encoding="ascii",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
 
     print(out.stdout)
     print(out.stderr)
@@ -113,7 +120,7 @@ def validate_nwb(filename):
     """
 
     if os.path.exists(filename):
-        with NWBHDF5IO(filename, mode='r', load_namespaces=True) as io:
+        with NWBHDF5IO(filename, mode="r", load_namespaces=True) as io:
             try:
                 errors = validate(io)
             except Exception as e:

@@ -10,8 +10,13 @@ from subprocess import Popen, PIPE
 
 import numpy as np
 
-from pynwb.icephys import CurrentClampStimulusSeries, VoltageClampStimulusSeries, CurrentClampSeries, \
-    VoltageClampSeries, IZeroClampSeries
+from pynwb.icephys import (
+    CurrentClampStimulusSeries,
+    VoltageClampStimulusSeries,
+    CurrentClampSeries,
+    VoltageClampSeries,
+    IZeroClampSeries,
+)
 
 try:
     from pynwb.form.backends.hdf5.h5_utils import H5DataIO
@@ -102,9 +107,9 @@ def createCycleID(numbers, total):
 
     for idx, n in enumerate(reversed(numbers)):
         assert n >= 0, f"Unexpected value {n} at index {idx}"
-        assert n < 10**places, f"Unexpected value {n} which is larger than {total}"
+        assert n < 10 ** places, f"Unexpected value {n} which is larger than {total}"
 
-        result += n * (10**(idx * places))
+        result += n * (10 ** (idx * places))
 
     return result
 
@@ -133,18 +138,26 @@ def getPackageInfo():
         """
 
         path = os.path.dirname(__file__)
-        branch = Popen(f'git -C "{path}" rev-parse --abbrev-ref HEAD', stdout=PIPE,
-                       shell=True).stdout.read().rstrip().decode('ascii')
-        rev = Popen(f'git -C "{path}" describe --always --tags', stdout=PIPE,
-                    shell=True).stdout.read().rstrip().decode('ascii')
+        branch = (
+            Popen(f'git -C "{path}" rev-parse --abbrev-ref HEAD', stdout=PIPE, shell=True)
+            .stdout.read()
+            .rstrip()
+            .decode("ascii")
+        )
+        rev = (
+            Popen(f'git -C "{path}" describe --always --tags', stdout=PIPE, shell=True)
+            .stdout.read()
+            .rstrip()
+            .decode("ascii")
+        )
 
-        if branch.startswith('fatal') or rev.startswith('fatal'):
+        if branch.startswith("fatal") or rev.startswith("fatal"):
             raise ValueError("Could not determine git version")
 
         return f"({branch}) {rev}"
 
     try:
-        package_version = get_distribution('allensdk').version
+        package_version = get_distribution("allensdk").version
     except DistributionNotFound:  # not installed as a package
         package_version = None
 
@@ -153,9 +166,11 @@ def getPackageInfo():
     except ValueError:  # not in a git repostitory
         git_version = None
 
-    version_info = {"repo": "https://github.com/AllenInstitute/ipfx",
-                    "package_version": "Unknown",
-                    "git_revision": "Unknown"}
+    version_info = {
+        "repo": "https://github.com/AllenInstitute/ipfx",
+        "package_version": "Unknown",
+        "git_revision": "Unknown",
+    }
 
     if package_version:
         version_info["package_version"] = package_version

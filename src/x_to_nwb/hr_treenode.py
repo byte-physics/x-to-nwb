@@ -6,19 +6,19 @@ from ipfx.x_to_nwb.hr_struct import Struct
 
 
 class TreeNode(Struct):
-    """Struct that also represents a node in the tree.
-    """
+    """Struct that also represents a node in the tree."""
+
     def __init__(self, fh, endianess, record_types, level_sizes, level=0):
         self.level = level
         self.children = []
 
         if self.level == 0:
-            levels = struct.unpack(endianess + 'i', fh.read(4))[0]
+            levels = struct.unpack(endianess + "i", fh.read(4))[0]
 
             # read size of each level (one int per level)
             level_sizes = []
             for _ in range(levels):
-                size = struct.unpack(endianess + 'i', fh.read(4))[0]
+                size = struct.unpack(endianess + "i", fh.read(4))[0]
                 level_sizes.append(size)
 
         # The record structure in the file may differ from our expected
@@ -30,7 +30,7 @@ class TreeNode(Struct):
         data = fh.read(realsize)
         diff = structsize - realsize
         if diff > 0:
-            data = data + b'\0'*diff
+            data = data + b"\0" * diff
         else:
             data = data[:structsize]
 
@@ -38,15 +38,14 @@ class TreeNode(Struct):
         Struct.__init__(self, data, endianess)
 
         # next read the number of children
-        nchild = struct.unpack(endianess + 'i', fh.read(4))[0]
+        nchild = struct.unpack(endianess + "i", fh.read(4))[0]
 
         level += 1
         if level >= len(record_types):
             return
         child_rectype = record_types[level]
         for _ in range(nchild):
-            self.children.append(child_rectype(fh, endianess, record_types,
-                                 level_sizes, level))
+            self.children.append(child_rectype(fh, endianess, record_types, level_sizes, level))
 
     def __getitem__(self, i):
         return self.children[i]
@@ -59,10 +58,10 @@ class TreeNode(Struct):
 
     def __str__(self, indent=0):
         # Return a string describing this structure
-        ind = '    '*indent
+        ind = "    " * indent
         srep = Struct.__str__(self, indent)[:-1]  # exclude final parentheses
         srep += ind
-        srep += '    children = %d,\n' % len(self)
+        srep += "    children = %d,\n" % len(self)
         srep += ind
-        srep += ')'
+        srep += ")"
         return srep

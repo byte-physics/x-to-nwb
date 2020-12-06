@@ -18,9 +18,19 @@ from pynwb.device import Device
 from pynwb import NWBHDF5IO, NWBFile
 from pynwb.icephys import IntracellularElectrode
 
-from ipfx.x_to_nwb.conversion_utils import PLACEHOLDER, V_CLAMP_MODE, I_CLAMP_MODE, I0_CLAMP_MODE, \
-     parseUnit, getStimulusSeriesClass, getAcquiredSeriesClass, createSeriesName, convertDataset, \
-     getPackageInfo, createCycleID
+from ipfx.x_to_nwb.conversion_utils import (
+    PLACEHOLDER,
+    V_CLAMP_MODE,
+    I_CLAMP_MODE,
+    I0_CLAMP_MODE,
+    parseUnit,
+    getStimulusSeriesClass,
+    getAcquiredSeriesClass,
+    createSeriesName,
+    convertDataset,
+    getPackageInfo,
+    createCycleID,
+)
 
 log = logging.getLogger(__name__)
 
@@ -198,9 +208,11 @@ class ABFConverter:
                     continue
 
                 if np.isnan(abf.sweepC).any():
-                    raise ValueError(f"Found at least one 'Not a Number' "
-                                     f"entry in stimulus channel {channel} of sweep {sweep} "
-                                     f"in file {abf.abfFilePath} using protocol {abf.protocol}.")
+                    raise ValueError(
+                        f"Found at least one 'Not a Number' "
+                        f"entry in stimulus channel {channel} of sweep {sweep} "
+                        f"in file {abf.abfFilePath} using protocol {abf.protocol}."
+                    )
 
     def _reduceChannelList(self, abf):
         """
@@ -310,19 +322,21 @@ class ABFConverter:
         session_start_time = self.refabf.abfDateTime
         creatorName = self.refabf._stringsIndexed.uCreatorName
         creatorVersion = formatVersion(self.refabf.creatorVersion)
-        experiment_description = (f"{creatorName} v{creatorVersion}")
+        experiment_description = f"{creatorName} v{creatorVersion}"
         source_script_file_name = "run_x_to_nwb_conversion.py"
         source_script = json.dumps(getPackageInfo(), sort_keys=True, indent=4)
         session_id = PLACEHOLDER
 
-        return NWBFile(session_description=session_description,
-                       identifier=identifier,
-                       session_start_time=session_start_time,
-                       experimenter=None,
-                       experiment_description=experiment_description,
-                       session_id=session_id,
-                       source_script_file_name=source_script_file_name,
-                       source_script=source_script)
+        return NWBFile(
+            session_description=session_description,
+            identifier=identifier,
+            session_start_time=session_start_time,
+            experimenter=None,
+            experiment_description=experiment_description,
+            session_id=session_id,
+            source_script_file_name=source_script_file_name,
+            source_script=source_script,
+        )
 
     def _createDevice(self):
         """
@@ -339,10 +353,9 @@ class ABFConverter:
         Create pynwb ic_electrodes objects from the ABF file contents.
         """
 
-        return [IntracellularElectrode(f"Electrode {x:d}",
-                                       device,
-                                       description=PLACEHOLDER)
-                for x in self.refabf.channelList]
+        return [
+            IntracellularElectrode(f"Electrode {x:d}", device, description=PLACEHOLDER) for x in self.refabf.channelList
+        ]
 
     def _calculateStartingTime(self, abf):
         """
@@ -382,29 +395,36 @@ class ABFConverter:
                     resolution = np.nan
                     starting_time = self._calculateStartingTime(abf)
                     rate = float(abf.dataRate)
-                    description = json.dumps({"cycle_id": cycle_id,
-                                              "protocol": abf.protocol,
-                                              "protocolPath": abf.protocolPath,
-                                              "file": os.path.basename(abf.abfFilePath),
-                                              "name": abf.dacNames[channel],
-                                              "number": abf._dacSection.nDACNum[channel]},
-                                             sort_keys=True, indent=4)
+                    description = json.dumps(
+                        {
+                            "cycle_id": cycle_id,
+                            "protocol": abf.protocol,
+                            "protocolPath": abf.protocolPath,
+                            "file": os.path.basename(abf.abfFilePath),
+                            "name": abf.dacNames[channel],
+                            "number": abf._dacSection.nDACNum[channel],
+                        },
+                        sort_keys=True,
+                        indent=4,
+                    )
 
                     seriesClass = getStimulusSeriesClass(self._getClampMode(abf, channel))
 
                     if seriesClass is not None:
-                        stimulus = seriesClass(name=name,
-                                               data=data,
-                                               sweep_number=np.uint64(cycle_id),
-                                               unit=unit,
-                                               electrode=electrode,
-                                               gain=gain,
-                                               resolution=resolution,
-                                               conversion=conversion,
-                                               starting_time=starting_time,
-                                               rate=rate,
-                                               description=description,
-                                               stimulus_description=stimulus_description)
+                        stimulus = seriesClass(
+                            name=name,
+                            data=data,
+                            sweep_number=np.uint64(cycle_id),
+                            unit=unit,
+                            electrode=electrode,
+                            gain=gain,
+                            resolution=resolution,
+                            conversion=conversion,
+                            starting_time=starting_time,
+                            rate=rate,
+                            description=description,
+                            stimulus_description=stimulus_description,
+                        )
 
                         series.append(stimulus)
 
@@ -462,8 +482,10 @@ class ABFConverter:
             settings = abfSettings[amplifier]
 
             if settings["GetMode"] != clampMode:
-                warnings.warn(f"Stored clamp mode {settings['GetMode']} does not match requested "
-                              f"clamp mode {clampMode} of channel {adcName}.")
+                warnings.warn(
+                    f"Stored clamp mode {settings['GetMode']} does not match requested "
+                    f"clamp mode {clampMode} of channel {adcName}."
+                )
                 settings = None
         except (TypeError, KeyError):
             warnings.warn(f"Could not find settings for amplifier {amplifier} of channel {adcName}.")
@@ -560,55 +582,64 @@ class ABFConverter:
                     resolution = np.nan
                     starting_time = self._calculateStartingTime(abf)
                     rate = float(abf.dataRate)
-                    description = json.dumps({"cycle_id": cycle_id,
-                                              "protocol": abf.protocol,
-                                              "protocolPath": abf.protocolPath,
-                                              "file": os.path.basename(abf.abfFilePath),
-                                              "name": adcName,
-                                              "number": abf._adcSection.nADCNum[channel]},
-                                             sort_keys=True, indent=4)
+                    description = json.dumps(
+                        {
+                            "cycle_id": cycle_id,
+                            "protocol": abf.protocol,
+                            "protocolPath": abf.protocolPath,
+                            "file": os.path.basename(abf.abfFilePath),
+                            "name": adcName,
+                            "number": abf._adcSection.nADCNum[channel],
+                        },
+                        sort_keys=True,
+                        indent=4,
+                    )
 
                     clampMode = self._getClampMode(abf, channel)
                     settings = self._getAmplifierSettings(abf, clampMode, adcName)
                     seriesClass = getAcquiredSeriesClass(clampMode)
 
                     if clampMode == V_CLAMP_MODE:
-                        acquistion_data = seriesClass(name=name,
-                                                      data=data,
-                                                      sweep_number=np.uint64(cycle_id),
-                                                      unit=unit,
-                                                      electrode=electrode,
-                                                      gain=gain,
-                                                      resolution=resolution,
-                                                      conversion=conversion,
-                                                      starting_time=starting_time,
-                                                      rate=rate,
-                                                      description=description,
-                                                      capacitance_slow=settings["capacitance_slow"],
-                                                      capacitance_fast=settings["capacitance_fast"],
-                                                      resistance_comp_correction=settings["resistance_comp_correction"],
-                                                      resistance_comp_bandwidth=settings["resistance_comp_bandwidth"],
-                                                      resistance_comp_prediction=settings["resistance_comp_prediction"],
-                                                      stimulus_description=stimulus_description,
-                                                      whole_cell_capacitance_comp=settings["whole_cell_capacitance_comp"],  # noqa: E501
-                                                      whole_cell_series_resistance_comp=settings["whole_cell_series_resistance_comp"])  # noqa: E501
+                        acquistion_data = seriesClass(
+                            name=name,
+                            data=data,
+                            sweep_number=np.uint64(cycle_id),
+                            unit=unit,
+                            electrode=electrode,
+                            gain=gain,
+                            resolution=resolution,
+                            conversion=conversion,
+                            starting_time=starting_time,
+                            rate=rate,
+                            description=description,
+                            capacitance_slow=settings["capacitance_slow"],
+                            capacitance_fast=settings["capacitance_fast"],
+                            resistance_comp_correction=settings["resistance_comp_correction"],
+                            resistance_comp_bandwidth=settings["resistance_comp_bandwidth"],
+                            resistance_comp_prediction=settings["resistance_comp_prediction"],
+                            stimulus_description=stimulus_description,
+                            whole_cell_capacitance_comp=settings["whole_cell_capacitance_comp"],  # noqa: E501
+                            whole_cell_series_resistance_comp=settings["whole_cell_series_resistance_comp"],
+                        )  # noqa: E501
 
                     elif clampMode in (I_CLAMP_MODE, I0_CLAMP_MODE):
-                        acquistion_data = seriesClass(name=name,
-                                                      data=data,
-                                                      sweep_number=np.uint64(cycle_id),
-                                                      unit=unit,
-                                                      electrode=electrode,
-                                                      gain=gain,
-                                                      resolution=resolution,
-                                                      conversion=conversion,
-                                                      starting_time=starting_time,
-                                                      rate=rate,
-                                                      description=description,
-                                                      bias_current=settings["bias_current"],
-                                                      bridge_balance=settings["bridge_balance"],
-                                                      stimulus_description=stimulus_description,
-                                                      capacitance_compensation=settings["capacitance_compensation"])
+                        acquistion_data = seriesClass(
+                            name=name,
+                            data=data,
+                            sweep_number=np.uint64(cycle_id),
+                            unit=unit,
+                            electrode=electrode,
+                            gain=gain,
+                            resolution=resolution,
+                            conversion=conversion,
+                            starting_time=starting_time,
+                            rate=rate,
+                            description=description,
+                            bias_current=settings["bias_current"],
+                            bridge_balance=settings["bridge_balance"],
+                            stimulus_description=stimulus_description,
+                            capacitance_compensation=settings["capacitance_compensation"],
+                        )
                     else:
                         raise ValueError(f"Unsupported clamp mode {clampMode}.")
 

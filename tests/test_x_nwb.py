@@ -27,8 +27,7 @@ from .helpers_for_tests import diff_h5
 pytestmark = pytest.mark.xnwbtest
 
 
-pytest.skip("All x-nwb tests fail",
-            allow_module_level=True)
+pytest.skip("All x-nwb tests fail", allow_module_level=True)
 
 
 def get_raw_files():
@@ -75,7 +74,7 @@ def test_file_level_regressions(raw_file):
     assert os.path.isfile(ref_file)
     assert os.path.isfile(new_file)
 
-    assert diff_h5(ref_file,new_file) == 0
+    assert diff_h5(ref_file, new_file) == 0
 
 
 def test_createCycleID():

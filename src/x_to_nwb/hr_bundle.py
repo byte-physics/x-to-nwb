@@ -1,42 +1,50 @@
 import warnings
 
-from ipfx.x_to_nwb.hr_nodes import (Pulsed, StimulusTemplate, AmplifierFile,
-                                    ProtocolMethod, Solutions, Marker,
-                                    BundleHeader, Analysis, RawData)
+from ipfx.x_to_nwb.hr_nodes import (
+    Pulsed,
+    StimulusTemplate,
+    AmplifierFile,
+    ProtocolMethod,
+    Solutions,
+    Marker,
+    BundleHeader,
+    Analysis,
+    RawData,
+)
 
 
-class Bundle():
+class Bundle:
     """
     Represent a PATCHMASTER tree file in memory
     """
 
     item_classes = {
-        '.pul': Pulsed,
-        '.dat': RawData,
-        '.pgf': StimulusTemplate,
-        '.amp': AmplifierFile,
-        '.mth': ProtocolMethod,
-        '.sol': Solutions,
-        '.mrk': Marker,
-        '.onl': Analysis
+        ".pul": Pulsed,
+        ".dat": RawData,
+        ".pgf": StimulusTemplate,
+        ".amp": AmplifierFile,
+        ".mth": ProtocolMethod,
+        ".sol": Solutions,
+        ".mrk": Marker,
+        ".onl": Analysis,
     }
 
     def __init__(self, file_name):
         self.file_name = file_name
 
         with self:
-            if self.fh.read(4) != b'DAT2':
+            if self.fh.read(4) != b"DAT2":
                 raise ValueError(f"No support for other files than 'DAT2' format")
 
             self.fh.seek(0)
 
             # Read header assuming little endian
-            endian = '<'
+            endian = "<"
             self.header = BundleHeader(self.fh, endian)
 
             # If the header is bad, re-read using big endian
             if not self.header.IsLittleEndian:
-                endian = '>'
+                endian = ">"
                 self.fh.seek(0)
                 self.header = BundleHeader(self.fh, endian)
 
@@ -48,13 +56,15 @@ class Bundle():
                 self.catalog[ext] = item
 
             if not self.header.Version.startswith("v2x90"):
-                warnings.warn(f"The DAT file version '{self.header.Version}' of '{file_name}' might "
-                              "be incompatible and therefore read/interpretation errors are possible.")
+                warnings.warn(
+                    f"The DAT file version '{self.header.Version}' of '{file_name}' might "
+                    "be incompatible and therefore read/interpretation errors are possible."
+                )
 
         return
 
     def __enter__(self):
-        self.fh = open(self.file_name, 'rb')
+        self.fh = open(self.file_name, "rb")
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -65,56 +75,56 @@ class Bundle():
         """
         The Data object from this bundle.
         """
-        return self._get_item_instance('.dat')
+        return self._get_item_instance(".dat")
 
     @property
     def pul(self):
         """
         The Pulsed object from this bundle.
         """
-        return self._get_item_instance('.pul')
+        return self._get_item_instance(".pul")
 
     @property
     def pgf(self):
         """
         The Stimulus Template object from this bundle.
         """
-        return self._get_item_instance('.pgf')
+        return self._get_item_instance(".pgf")
 
     @property
     def sol(self):
         """
         The Solutions object from this bundle.
         """
-        return self._get_item_instance('.sol')
+        return self._get_item_instance(".sol")
 
     @property
     def onl(self):
         """
         The Online Analysis object from this bundle.
         """
-        return self._get_item_instance('.onl')
+        return self._get_item_instance(".onl")
 
     @property
     def mth(self):
         """
         The ProtocolMethod object from this bundle.
         """
-        return self._get_item_instance('.mth')
+        return self._get_item_instance(".mth")
 
     @property
     def mrk(self):
         """
         The Markers object from this bundle.
         """
-        return self._get_item_instance('.mrk')
+        return self._get_item_instance(".mrk")
 
     @property
     def amp(self):
         """
         The Amplifier object from this bundle.
         """
-        return self._get_item_instance('.amp')
+        return self._get_item_instance(".amp")
 
     # "ana" which holds results from Fitmaster is not supported
 
@@ -131,18 +141,18 @@ class Bundle():
         cls = self.item_classes[ext]
 
         with self:
-            if ext == '.dat':
+            if ext == ".dat":
                 item.instance = cls(self)
             else:
                 self.fh.seek(item.Start)
                 # read endianess magic
                 magic = self.fh.read(4)
-                if magic == b'eerT':
-                    endianess = '<'
-                elif magic == b'Tree':
-                    endianess = '>'
+                if magic == b"eerT":
+                    endianess = "<"
+                elif magic == b"Tree":
+                    endianess = ">"
                 else:
-                    raise RuntimeError('Bad file magic: %s' % magic)
+                    raise RuntimeError("Bad file magic: %s" % magic)
 
                 item.instance = cls(self.fh, endianess)
 
@@ -158,7 +168,7 @@ class Bundle():
         """
 
         if outputFile is not None:
-            fh = open(outputFile, 'w')
+            fh = open(outputFile, "w")
         else:
             fh = None
 
@@ -174,7 +184,7 @@ class Bundle():
 
         print(self.data[0, 0, 0, 0], file=fh)
 
-        print('#' * 80, file=fh)
+        print("#" * 80, file=fh)
 
         # Root
         #   Groups
@@ -191,7 +201,7 @@ class Bundle():
                     for trace in sweep:
                         print(trace, file=fh)
 
-        print('#' * 80, file=fh)
+        print("#" * 80, file=fh)
 
         # Root
         #   Stimulation
