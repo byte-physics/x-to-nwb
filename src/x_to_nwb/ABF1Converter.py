@@ -225,7 +225,7 @@ class ABF1Converter:
                         data = abfFile.sweepY
                         scaledUnit = abfFile.sweepUnitsY
 
-                    stimulusGain = self.stimulusGain
+                    stimulusGain = float(self.stimulusGain)
                     data = data * stimulusGain
 
                     conversion, _ = self._unitConversion(scaledUnit)
@@ -300,7 +300,7 @@ class ABF1Converter:
                     # Collect data from pyABF
                     abfFile.setSweep(i, channel=channelIndex)
                     seriesName = f"Index_{idx}_{i}_{channelIndex}"
-                    responseGain = self.responseGain
+                    responseGain = float(self.responseGain)
                     responseOffset = self.responseOffset
 
                     data = abfFile.sweepY * responseGain + responseOffset
