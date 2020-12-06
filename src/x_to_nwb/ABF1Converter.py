@@ -7,16 +7,8 @@ from datetime import datetime
 from dateutil.tz import tzlocal
 from pynwb import NWBHDF5IO, NWBFile
 from pynwb.icephys import CurrentClampStimulusSeries, VoltageClampStimulusSeries, CurrentClampSeries, VoltageClampSeries
-from hdmf.backends.hdf5.h5_utils import H5DataIO
 
-
-def createCompressedDataset(array):
-    """
-    Request compression for the given array and return it wrapped.
-    """
-
-    return H5DataIO(data=array, compression=True, chunks=True, shuffle=True, fletcher32=True)
-
+from .conversion_utils import convertDataset
 
 class ABF1Converter:
 
@@ -36,6 +28,7 @@ class ABF1Converter:
                          the stimulus is recorded as well.
     responseGain: user-input float indicating scalar gain for response channel
     stimulusGain: user-input float indicating scalar gain for stimulus channel
+    compression:  Toggle compression for HDF5 datasets
     clampMode: 0 or 1 integer indicating clamp mode (0 is VC, 1 is CC). If not None, overwrites clamp mode provided in ABF file
     """
 
@@ -49,6 +42,7 @@ class ABF1Converter:
         stimulusGain=1,
         responseOffset=0,
         clampMode=None,
+        compression=True,
     ):
 
         self.inputPath = inputPath
@@ -99,6 +93,7 @@ class ABF1Converter:
         else:
             self.clampMode = self.abfFiles[0]._headerV1.nExperimentType
 
+        self.compression = compression
         self.outputPath = outputFilePath
 
         # Take metadata input, and return hard coded values for None
@@ -268,7 +263,7 @@ class ABF1Converter:
                     else:
                         raise ValueError(f"Unsupported clamp mode {self.clampMode}")
 
-                    data = createCompressedDataset(data)
+                    data = convertDataset(data, self.compression)
 
                     # Create a stimulus class
                     stimulus = stimulusClass(
@@ -345,7 +340,7 @@ class ABF1Converter:
                     # Create an acquisition class
                     # Note: voltage input produces current output; current input produces voltage output
 
-                    data = createCompressedDataset(data)
+                    data = convertDataset(data, self.compression)
 
                     if self.clampMode == 1:
                         acquisition = CurrentClampSeries(
