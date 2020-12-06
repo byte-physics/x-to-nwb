@@ -1,46 +1,13 @@
 ## Converting ABF/DAT files to NWB
 
-The script `run_x_to_nwb_conversion.py` allows to convert ABF/DAT files to NeurodataWithoutBorders v2 files.
+The script `x-to-nwb` allows to convert ABF/DAT files to NeurodataWithoutBorders v2 files.
 
 ### ABF specialities
 
 As of 9/2018 PClamp/Clampex does not record all required amplifier settings.
-To workaround that issue we've developed `mcc_get_settings.py` which gathers
-all amplifier settings from all active amplifiers and writes them to a file in
-JSON output.
-
-#### MCC settings gathering
-
-```sh
-mcc_get_settings.py --filename 2018_09_12_0003.json --settingsFile misc-settings.json
-```
-
-The optional parameter `--filename` gives the name of the output file,
-`--settingsFile` is mandatory and makes the connection between the names of the
-AD channels and the amplifier names. In addition it holds the optional scale
-factors for the stimulus sets.
-
-Example for `misc-settings.json`:
-
-```json
-{
-    "IN0": "Demo1_1",
-    "IN1": "Demo1_2",
-    "ScaleFactors": {
-        "C1NSD1SHORT": 1.05,
-        "C1NSD2SHORT": 1.05,
-        "CHIRP": 1,
-        "LSFINEST": 1.05,
-        "SSFINEST": 7,
-        "TRIPPLE": 7
-    }
-}
-```
-
-The JSON files must reside in the same directory as the ABF files.
-
-For continously gathering the amplifier settings when a new ABF file is created
-use the `--watchFolder` option.
+For gathering these please see the `mcc_get_settings.py` script in the ipfx
+repository which gathers all amplifier settings from all active amplifiers and
+writes them to a file in JSON output.
 
 #### Required input files
 
@@ -52,7 +19,7 @@ use the `--watchFolder` option.
 ##### Convert a single file
 
 ```sh
-run_x_to_nwb_conversion.py 2018_03_20_0000.abf
+x-to-nwb 2018_03_20_0000.abf
 ```
 
 ##### Convert a single file with overwrite and use a directory for finding custom waveforms
@@ -64,7 +31,7 @@ these files should be searched. Currently only custom waveforms in ATF (Axon
 Text format) are supported.
 
 ```sh
-run_x_to_nwb_conversion.py --overwrite --protocolDir protocols 2018_03_20_0000.abf
+x-to-nwb --overwrite --protocolDir protocols 2018_03_20_0000.abf
 ```
 
 ##### Convert a folder with ABF files
@@ -72,7 +39,7 @@ run_x_to_nwb_conversion.py --overwrite --protocolDir protocols 2018_03_20_0000.a
 The following command converts all ABF files which reside in `someFolder` to a single NWB file.
 
 ```sh
-run_x_to_nwb_conversion.py --fileType ".abf" --overwrite someFolder
+x-to-nwb --fileType ".abf" --overwrite someFolder
 ```
 
 #### Disabling compression
@@ -80,41 +47,33 @@ run_x_to_nwb_conversion.py --fileType ".abf" --overwrite someFolder
 The following command disables compression of the HDF5 datasets (intended for debugging purposes).
 
 ```sh
-run_x_to_nwb_conversion.py --no-compression 2018_03_20_0000.abf
+x-to-nwb --no-compression 2018_03_20_0000.abf
 ```
 
 ### DAT specialities
 
 #### Required input files
 
-- DAT files acquired with Patchmaster version 2x90.
+DAT files acquired with Patchmaster version 2x90.
 
 #### Examples
 
 ##### Convert a single file creating one NWB file per Group
 
 ```sh
-run_x_to_nwb_conversion.py H18.28.015.11.12.dat
+x-to-nwb H18.28.015.11.12.dat
 ```
 
 ##### Convert a single file creating one NWB file with all Groups
 
 ```sh
-run_x_to_nwb_conversion.py --multipleGroupsPerFile H18.28.015.11.12.dat
+x-to-nwb --multipleGroupsPerFile H18.28.015.11.12.dat
 ```
-
-## Creating a PDF from an NWB file for preview purposes
-
-```sh
-nwb_to_pdf.py file1.nwb file2.nwb
-```
-
-This creates two PDFs named `file1.pdf` and `file2.pdf`.
 
 ## Outputting DAT/ABF metadata files for debugging purposes
 
 ```sh
-run_x_to_nwb_conversion.py --outputMetadata *.dat *.abf
+x-to-nwb --outputMetadata *.dat *.abf
 ```
 
 ## Running the regression tests
@@ -127,8 +86,8 @@ For running the tests do the following:
 
 ```sh
 cd tests
-py.test --collect-only --do-x-nwb-tests test_x_nwb.py
-py.test --do-x-nwb-tests --numprocesses auto test_x_nwb.py
+py.test --collect-only .
+py.test --numprocesses auto .
 ```
 
 The separate collection step is necessary as that can not be parallelized, see also
