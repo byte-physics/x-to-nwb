@@ -2,6 +2,13 @@
 
 The script `x-to-nwb` allows to convert ABF/DAT files to NeurodataWithoutBorders v2 files.
 
+For programmatic use the function `convert` is designed as public interface.
+
+```python
+from x_to_nwb import convert
+help(convert)
+```
+
 ### ABF specialities
 
 As of 9/2018 PClamp/Clampex does not record all required amplifier settings.
