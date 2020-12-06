@@ -240,7 +240,7 @@ class ABF1Converter:
                     stimulusGain = self.stimulusGain
                     data = data * stimulusGain
 
-                    conversion, unit = self._unitConversion(scaledUnit)
+                    conversion, _ = self._unitConversion(scaledUnit)
                     electrode = self.electrode
                     resolution = np.nan
                     starting_time = 0.0
@@ -281,7 +281,6 @@ class ABF1Converter:
                         conversion=conversion,
                         starting_time=starting_time,
                         rate=rate,
-                        unit=unit,
                         description=description,
                     )
 
@@ -323,7 +322,7 @@ class ABF1Converter:
                     responseOffset = self.responseOffset
 
                     data = abfFile.sweepY * responseGain + responseOffset
-                    conversion, unit = self._unitConversion(abfFile.sweepUnitsY)
+                    conversion, _= self._unitConversion(abfFile.sweepUnitsY)
                     electrode = self.electrode
                     resolution = np.nan
                     starting_time = 0.0
@@ -359,7 +358,6 @@ class ABF1Converter:
                             conversion=conversion,
                             starting_time=starting_time,
                             rate=rate,
-                            unit=unit,
                             description=description,
                             bias_current=np.nan,
                             bridge_balance=np.nan,
@@ -377,7 +375,6 @@ class ABF1Converter:
                             conversion=conversion,
                             starting_time=starting_time,
                             rate=rate,
-                            unit=unit,
                             description=description,
                             capacitance_fast=np.nan,
                             capacitance_slow=np.nan,
