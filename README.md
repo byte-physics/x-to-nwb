@@ -1,3 +1,7 @@
+[![Actions Status](https://github.com/byte-physics/x-to-nwb/workflows/Build/badge.svg)](https://github.com/byte-physics/x-to-nwb/actions)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/x-to-nwb?style=plastic)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/x-to-nwb?style=plastic)
+
 ## Converting ABF/DAT files to NWB
 
 The script `x-to-nwb` allows to convert ABF/DAT files to NeurodataWithoutBorders v2 files.
