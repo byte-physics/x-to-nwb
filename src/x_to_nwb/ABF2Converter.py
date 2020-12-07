@@ -73,9 +73,7 @@ class ABF2Converter:
             raise ValueError(f"{inFileOrFolder} is neither a folder nor a path.")
 
         if includeChannelList is not None and discardChannelList is not None:
-            raise ValueError(
-                f"includeChannelList and discardChannelList are mutually exclusive. Pass only one of them."
-            )
+            raise ValueError("includeChannelList and discardChannelList are mutually exclusive. Pass only one of them.")
         elif includeChannelList is None and discardChannelList is None:
             includeChannelList = list("*")
 
@@ -182,7 +180,7 @@ class ABF2Converter:
             log.debug(f"Found {numFiles} JSON files for folder conversion.")
 
             if numFiles == 0:
-                warnings.warn(f"Could not find any JSON file with settings.")
+                warnings.warn("Could not find any JSON file with settings.")
                 return d
             elif numFiles == 1:
                 # compatibility with old datasets with only one JSON file per folder
@@ -254,7 +252,7 @@ class ABF2Converter:
         elif self.discardChannelList is not None:
             return list(set(abf.adcNames) - set(abf.adcNames).intersection(self.discardChannelList))
 
-        raise ValueError(f"Unexpected include and discard channel settings.")
+        raise ValueError("Unexpected include and discard channel settings.")
 
     def _checkAll(self):
         """

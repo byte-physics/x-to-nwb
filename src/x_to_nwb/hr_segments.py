@@ -210,9 +210,9 @@ class SquareSegment(Segment):
         elif self.kind != "Common Frequency":
             raise ValueError(f"Unsupported squareKind={self.squareKind}")
         elif self.hasXDelta() or self.hasYDelta():
-            raise ValueError(f"Delta modes are not supported.")
+            raise ValueError("Delta modes are not supported.")
         elif not (self.cycleDuration > 0):
-            raise ValueError(f"Invalid cycle duration.")
+            raise ValueError("Invalid cycle duration.")
 
     def __str__(self):
         return super().__str__() + (

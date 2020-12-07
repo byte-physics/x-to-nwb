@@ -39,7 +39,7 @@ class StimSetGenerator:
             channelRec_index = getChannelRecordIndex(self.bundle.pgf, sweep, trace)
 
             if channelRec_index is None:
-                raise ValueError(f"Could not find a ChannelRecord for the given trace.")
+                raise ValueError("Could not find a ChannelRecord for the given trace.")
 
             key = f"{stimRec_idx}.{channelRec_index}"
             entry = self.cache.get(key)

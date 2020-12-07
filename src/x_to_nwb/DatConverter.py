@@ -377,7 +377,7 @@ class DatConverter:
 
                 if deviceString != DatConverter._formatDeviceString(state):
                     raise ValueError(
-                        f"Device strings differ in tree structure "
+                        "Device strings differ in tree structure "
                         + f"({deviceString} vs {DatConverter._formatDeviceString(state)} "
                         + f"at {series_index}.{state_index})"
                     )
