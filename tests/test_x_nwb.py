@@ -1,68 +1,40 @@
 """
-Regression tests for the DAT/ABF conversion to NWB.
-
-Idea:
-    A list of raw data files is converted to NWB and the new NWB file
-    is compared to the NWB from earlier runs.
+Simple conversion tests for the stored files
 """
 
-import pytest
-import glob
 import os
-import subprocess
+import pathlib
 
-from x_to_nwb.ABFConverter import ABFConverter
 from x_to_nwb.conversion_utils import createCycleID
 from x_to_nwb.conversion import convert
-from .test_x_nwb_helper import fetch_and_extract_zip
-from .helpers_for_tests import diff_h5
+from x_to_nwb.ABF2Converter import ABF2Converter
+
+top_level = pathlib.Path(__file__).parent.absolute()
+data_folder = os.path.join(top_level, "data")
 
 
-def get_raw_files():
+def test_conversion_abfv2():
 
-    # we have to do that here as we need to have the files
-    # before we can decide how many tests we have
-    fetch_and_extract_zip("reference_dat.zip")
-    fetch_and_extract_zip("reference_dat_nwb.zip")
-
-    fetch_and_extract_zip("reference_abf.zip")
-    fetch_and_extract_zip("reference_abf_nwb.zip")
-
-    fetch_and_extract_zip("reference_atf.zip")
-    ABFConverter.protocolStorageDir = "reference_atf"
-
-    files = []
-
-    for ext in ["abf", "dat"]:
-        folder = f"reference_{ext}"
-        files += glob.glob(os.path.join(folder, f"*.{ext}"))
-
-    return files
+    ABF2Converter.protocolStorageDir = os.path.join(data_folder, "protocols")
+    convert(
+        os.path.join(data_folder, "2018_03_21_0029.abfv2"), compression=False, overwrite=True, searchSettingsFile=False
+    )
 
 
-@pytest.fixture(scope="module")
-def h5diff_present():
-    assert subprocess.run(["h5diff", "--version"]).returncode == 0
+def test_conversion_abfv1():
+
+    convert(
+        os.path.join(data_folder, "19122043.abfv1"),
+        compression=False,
+        overwrite=True,
+        acquisitionChannelName="IN 1",
+        stimulusChannelName="OUT 0",
+    )
 
 
-@pytest.fixture(scope="module", params=get_raw_files())
-def raw_file(request, h5diff_present):
-    return request.param
+def test_conversion_dat():
 
-
-def test_file_level_regressions(raw_file):
-
-    base, ext = os.path.splitext(raw_file)
-
-    ref_folder = f"reference_{ext[1:]}_nwb"
-
-    new_file = convert(raw_file, overwrite=True, outputFeedbackChannel=True, multipleGroupsPerFile=True)
-    ref_file = os.path.join(ref_folder, os.path.basename(new_file))
-
-    assert os.path.isfile(ref_file)
-    assert os.path.isfile(new_file)
-
-    assert diff_h5(ref_file, new_file) == 0
+    convert(os.path.join(data_folder, "H18.28.015.11.14.dat"), compression=False, overwrite=True)
 
 
 def test_createCycleID():

@@ -6,5 +6,5 @@ build/
 dist/
 *.egg-info
 
-# reference test data
-tests/reference.*
+tests/data/*.nwb
+tests/data/*.html

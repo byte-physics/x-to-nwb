@@ -1,6 +1,17 @@
+[![Actions Status](https://github.com/byte-physics/x-to-nwb/workflows/Build/badge.svg)](https://github.com/byte-physics/x-to-nwb/actions)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/x-to-nwb?style=plastic)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/x-to-nwb?style=plastic)
+
 ## Converting ABF/DAT files to NWB
 
 The script `x-to-nwb` allows to convert ABF/DAT files to NeurodataWithoutBorders v2 files.
+
+For programmatic use the function `convert` is designed as public interface.
+
+```python
+from x_to_nwb import convert
+help(convert)
+```
 
 ### ABF specialities
 
@@ -8,6 +19,21 @@ As of 9/2018 PClamp/Clampex does not record all required amplifier settings.
 For gathering these please see the `mcc_get_settings.py` script in the ipfx
 repository which gathers all amplifier settings from all active amplifiers and
 writes them to a file in JSON output.
+
+In case you don't have a JSON settings file pass `--no-searchSettingsFile` to avoid warnings.
+
+By default all AD and DA channels are outputted into the NWB file. You can
+select to only export some AD channels with
+
+```sh
+x-to-nwb --includeChannel ABCD 2018_03_20_0000.abf
+```
+
+Or to discard some AD channels use
+
+```sh
+x-to-nwb --discardChannel ABCD 2018_03_20_0000.abf
+```
 
 #### Required input files
 
@@ -75,20 +101,3 @@ x-to-nwb --multipleGroupsPerFile H18.28.015.11.12.dat
 ```sh
 x-to-nwb --outputMetadata *.dat *.abf
 ```
-
-## Running the regression tests
-
-Currently only file level regressions tests exist which check that the
-conversion from DAT/ABF to NWB results in the same NWB files compared to earlier
-versions.
-
-For running the tests do the following:
-
-```sh
-cd tests
-py.test --collect-only .
-py.test --numprocesses auto .
-```
-
-The separate collection step is necessary as that can not be parallelized, see also
-https://github.com/pytest-dev/pytest-xdist/issues/18.

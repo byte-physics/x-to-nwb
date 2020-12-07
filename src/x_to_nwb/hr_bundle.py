@@ -34,7 +34,7 @@ class Bundle:
 
         with self:
             if self.fh.read(4) != b"DAT2":
-                raise ValueError(f"No support for other files than 'DAT2' format")
+                raise ValueError("No support for other files than 'DAT2' format")
 
             self.fh.seek(0)
 

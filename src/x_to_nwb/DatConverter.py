@@ -1,5 +1,5 @@
 from hashlib import sha256
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 import json
 import warnings
@@ -78,7 +78,7 @@ class DatConverter:
 
             self.electrodeDict = DatConverter._generateElectrodeDict(elem)
             electrodes = self._createElectrodes(device)
-            nwbFile.add_ic_electrode(electrodes)
+            nwbFile.add_icephys_electrode(electrodes)
 
             for i in self._createAcquiredSeries(electrodes, elem):
                 nwbFile.add_acquisition(i)
@@ -288,7 +288,7 @@ class DatConverter:
         delta = datetime(1970, 1, 1) - datetime(1904, 1, 1)
         secondsSinceUnixEpoch = heka_elapsed_seconds - JanFirst1990 - delta.total_seconds() + 16096
 
-        return datetime.fromtimestamp(secondsSinceUnixEpoch)
+        return datetime.fromtimestamp(secondsSinceUnixEpoch).replace(tzinfo=timezone.utc)
 
     @staticmethod
     def _isValidAmplifierState(ampState):
@@ -377,7 +377,7 @@ class DatConverter:
 
                 if deviceString != DatConverter._formatDeviceString(state):
                     raise ValueError(
-                        f"Device strings differ in tree structure "
+                        "Device strings differ in tree structure "
                         + f"({deviceString} vs {DatConverter._formatDeviceString(state)} "
                         + f"at {series_index}.{state_index})"
                     )
@@ -534,9 +534,9 @@ class DatConverter:
                         clampMode = DatConverter._getClampMode(ampState, cycle_id, trace)
 
                         if clampMode == V_CLAMP_MODE:
-                            conversion, unit = 1e-3, "V"
+                            conversion = 1e-3
                         elif clampMode == I_CLAMP_MODE:
-                            conversion, unit = 1e-12, "A"
+                            conversion = 1e-12
 
                         seriesClass = getStimulusSeriesClass(clampMode)
 
@@ -544,7 +544,6 @@ class DatConverter:
                             name=name,
                             data=data,
                             sweep_number=np.uint64(cycle_id),
-                            unit=unit,
                             electrode=electrode,
                             gain=gain,
                             resolution=resolution,
@@ -593,7 +592,7 @@ class DatConverter:
                         else:
                             gain = np.nan
 
-                        conversion, unit = parseUnit(trace.YUnit)
+                        conversion, _ = parseUnit(trace.YUnit)
                         electrodeKey = DatConverter._generateElectrodeKey(trace)
                         electrode = electrodes[self.electrodeDict[electrodeKey]]
 
@@ -643,7 +642,6 @@ class DatConverter:
                                 name=name,
                                 data=data,
                                 sweep_number=np.uint64(cycle_id),
-                                unit=unit,
                                 electrode=electrode,
                                 gain=gain,
                                 resolution=resolution,
@@ -681,7 +679,6 @@ class DatConverter:
                                 name=name,
                                 data=data,
                                 sweep_number=np.uint64(cycle_id),
-                                unit=unit,
                                 electrode=electrode,
                                 gain=gain,
                                 resolution=resolution,
