@@ -17,4 +17,4 @@ fi
 python setup.py sdist bdist_wheel
 
 # Use --repository testpypi for testing
-python -m twine upload --repository testpypi dist/*
+python -m twine upload dist/*
