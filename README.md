@@ -1,4 +1,5 @@
 [![Actions Status](https://github.com/byte-physics/x-to-nwb/workflows/Build/badge.svg)](https://github.com/byte-physics/x-to-nwb/actions)
+![PyPI](https://img.shields.io/pypi/v/x-to-nwb?style=plastic)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/x-to-nwb?style=plastic)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/x-to-nwb?style=plastic)
 
