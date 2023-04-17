@@ -45,3 +45,4 @@ def test_createCycleID():
     assert createCycleID([10, 2, 3, 40], total=20) == 10020340
     assert createCycleID([10, 20, 30, 4], total=20) == 10203004
     assert createCycleID([10, 20, 30, 40], total=20) == 10203040
+    assert 1 == 0
