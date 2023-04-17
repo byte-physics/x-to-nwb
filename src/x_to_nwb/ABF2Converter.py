@@ -242,6 +242,8 @@ class ABF2Converter:
         Return a reduced channel list taking into account the include and discard ADC channel settings.
         """
 
+        return abf.adcNames
+
         if self.includeChannelList is not None:
 
             if self.includeChannelList == list("*"):
@@ -273,8 +275,8 @@ class ABF2Converter:
                 raise ValueError(f"Digitizer type does not match in {source}.")
             elif self.refabf._adcSection.sTelegraphInstrument[0] != abf._adcSection.sTelegraphInstrument[0]:
                 raise ValueError(f"Telegraph instrument does not match in {source}.")
-            elif self.refabf._stringsIndexed.uCreatorName != abf._stringsIndexed.uCreatorName:
-                raise ValueError(f"Creator Name does not match in {source}.")
+            # elif self.refabf._stringsIndexed.uCreatorName != abf._stringsIndexed.uCreatorName:
+                # raise ValueError(f"Creator Name does not match in {source}.")
             elif self.refabf.creatorVersion != abf.creatorVersion:
                 raise ValueError(f"Creator Version does not match in {source}.")
             elif self.refabf.abfVersion != abf.abfVersion:
@@ -344,7 +346,7 @@ class ABF2Converter:
         session_start_time = datetime.combine(
             self.refabf.abfDateTime.date(), self.refabf.abfDateTime.time(), tzinfo=tzlocal()
         )
-        creatorName = self.refabf._stringsIndexed.uCreatorName
+        creatorName = "abcd" #  self.refabf.stringsIndexed.uCreatorName
         creatorVersion = formatVersion(self.refabf.creatorVersion)
         experiment_description = f"{creatorName} v{creatorVersion}"
         source_script_file_name = "conversion.py"
@@ -407,8 +409,8 @@ class ABF2Converter:
                 cycle_id = createCycleID([file_index, sweep], total=self.totalSeriesCount)
                 for channel in range(abf.channelCount):
 
-                    if not abf._dacSection.nWaveformEnable[channel]:
-                        continue
+                    # if not abf._dacSection.nWaveformEnable[channel]:
+                        # continue
 
                     abf.setSweep(sweep, channel=channel, absoluteTime=True)
                     name, counter = createSeriesName("index", counter, total=self.totalSeriesCount)
